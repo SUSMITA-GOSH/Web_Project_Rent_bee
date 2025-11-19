@@ -6,7 +6,21 @@
   <title>RentBee</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
+
+    .navbar-nav .nav-item {
+  margin-left: 16px;
+}
+.navbar-nav .nav-link {
+  color: #000000; /* default text color */
+  transition: color 0.2s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #edbc0a !important; /* dark yellow hover color */
+}
+
     body {
+      padding-top: 70px;
       font-family: 'Poppins', sans-serif;
       background-color: #fafafa;
     }
@@ -80,9 +94,51 @@
         width: 100%;
       }
     }
+   .service-card-link { 
+  display: block; 
+  color: inherit; 
+}
+
+.service-card-link .card { 
+  transition: border 0.25s ease;
+  border: 2px solid transparent; /* default border */
+}
+
+.service-card-link:hover .card { 
+  border: 2px solid #fdd835; /* dark yellow border on hover */
+}
+
+
   </style>
 </head>
 <body>
+  <nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold text-warning" href="#">🐝RentBee</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Browse Services</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">How It Works</a></li>
+      </ul>
+
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="#">Login</a></li>
+        <li class="nav-item">
+          <a class="btn btn-outline-warning rounded-pill me-2" href="#">Sign Up</a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-warning rounded-pill" href="#">Become a Service Provider</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
 
   <section class="hero">
     <div class="hero-content">
@@ -93,6 +149,54 @@
       </div>
     </div>
   </section>
+  <section class="py-5 bg-light" id="popular-services">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-4 text-warning">Most Popular Services</h2>
+
+    <div class="row g-4">
+
+      <div class="col-md-3 col-sm-6">
+        <a href="browse.html?category=Chef" class="service-card-link text-decoration-none">
+          <div class="card h-100 shadow-sm text-center p-3">
+            <div class="fs-1">👨‍🍳</div>
+            <h5 class="mt-2 fw-bold text-dark">Chef</h5>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <a href="browse.html?category=Tutor" class="service-card-link text-decoration-none">
+          <div class="card h-100 shadow-sm text-center p-3">
+            <div class="fs-1">📚</div>
+            <h5 class="mt-2 fw-bold text-dark">Tutor</h5>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <a href="browse.html?category=Nanny" class="service-card-link text-decoration-none">
+          <div class="card h-100 shadow-sm text-center p-3">
+            <div class="fs-1">🧒</div>
+            <h5 class="mt-2 fw-bold text-dark">Nanny</h5>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <a href="browse.html?category=Cleaner" class="service-card-link text-decoration-none">
+          <div class="card h-100 shadow-sm text-center p-3">
+            <div class="fs-1">🧹</div>
+            <h5 class="mt-2 fw-bold text-dark">Cleaner</h5>
+          </div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
