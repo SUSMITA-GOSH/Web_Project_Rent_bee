@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profile Setup with Image & Payment</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <h2>Your Profile Setup</h2>
+  <form id="profileForm" enctype="multipart/form-data">
+    <label>Name:<br />
+      <input type="text" id="name" required />
+    </label><br />
+
+    <label>Account Type:<br />
+      <select id="accountType" required>
+        <option value="">Select type</option>
+        <option value="client">Client</option>
+        <option value="producer">Producer</option>
+      </select>
+    </label><br />
+
+    <div id="producerFields" style="display:none;">
+      <label>Profile Image:<br />
+        <input type="file" id="profileImage" accept="image/*" />
+      </label><br />
+      <label>Services (comma separated):<br />
+        <input type="text" id="services" />
+      </label><br />
+      <label>Portfolio / Work Description:<br />
+        <textarea id="portfolio" rows="4" placeholder="Describe your work or add portfolio link"></textarea>
+      </label><br />
+      <label>WhatsApp Number:<br />
+        <input type="text" id="whatsapp" placeholder="+1234567890" />
+      </label><br />
+      <label>Gmail:<br />
+        <input type="email" id="gmail" placeholder="you@example.com" />
+      </label><br />
+      <label>GitHub Link:<br />
+        <input type="url" id="github" placeholder="https://github.com/username" />
+      </label><br />
+      <label>Hourly Rate ($):<br />
+        <input type="number" id="hourlyRate" min="0" step="0.01" placeholder="e.g. 15" />
+      </label><br />
+      <label>Daily Rate ($):<br />
+        <input type="number" id="dailyRate" min="0" step="0.01" placeholder="e.g. 100" />
+      </label><br />
+    </div>
+
+    <button type="submit">Save Profile</button>
+  </form>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
