@@ -32,7 +32,7 @@ document.getElementById("loginBtn").onclick = async () => {
   const pass = document.getElementById("password").value;
 
   if (!selectedRole) {
-    alert("Please select Tenant or Owner.");
+    alert("Please select Provider or Receiver.");
     return;
   }
 
@@ -45,14 +45,17 @@ document.getElementById("loginBtn").onclick = async () => {
   try {
     await signInWithEmailAndPassword(auth, email, pass);
 
-    // Redirect by role
-    if (selectedRole === "tenant") {
-      window.location.href = "tenant-dashboard.html";
+    
+    if (selectedRole === "provider") {
+      window.location.href = "provider-dashboard.html";
+    } else if (selectedRole === "receiver") {
+      window.location.href = "receiver-dashboard.html";
     } else {
-      window.location.href = "owner-dashboard.html";
+      alert("Role not recognized.");
     }
 
   } catch (e) {
     alert(e.message);
+    console.log(e.code, e.message);
   }
 };

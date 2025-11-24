@@ -4,38 +4,25 @@
   <meta charset="utf-8">
   <title>RentBee — Login</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-
-  
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
   <link rel="stylesheet" href="login.css">
 </head>
-
 <body>
-
 <div class="wrap">
   <h2>Login</h2>
-
   
   <div class="role-box">
-    <div class="role-option" data-role="tenant">Provider</div>
-    <div class="role-option" data-role="owner">Receiver</div>
+    <div class="role-option" data-role="provider">Provider</div>
+    <div class="role-option" data-role="receiver">Receiver</div>
   </div>
-
   <input id="email" placeholder="Email" type="email">
   <input id="password" placeholder="Password" type="password">
-
   <div class="g-recaptcha" data-sitekey="6Lf5qQ0sAAAAAPYwdI1rnBYBUgtcJmg7oqO5IhV8"></div>
-
   <button id="loginBtn">Login</button>
-
   <p class="center">
     Don't have an account? <a href="role-select.html">Create account</a>
   </p>
 </div>
-
-
 <script type="module" src="login.js"></script>
-
 </body>
 </html>
