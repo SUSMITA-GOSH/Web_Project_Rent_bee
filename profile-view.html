@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Profile - RentBee</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">RentBee</a></div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="profile.html">My Profile</a>
+        </div>
+    </nav>
+
+    <div class="profile-view-container"
+        style="max-width: 800px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <div class="profile-header" style="display: flex; gap: 2rem; align-items: start; margin-bottom: 2rem;">
+            <img id="profileImg" src="https://via.placeholder.com/150" alt="Profile"
+                style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
+            <div class="profile-info">
+                <h1 id="profileName" style="margin: 0 0 0.5rem 0;">Loading...</h1>
+                <div class="badges" style="margin-bottom: 1rem;">
+                    <span class="badge verified">Verified</span>
+                    <span class="badge" id="avgRating">New</span>
+                </div>
+                <div class="rates" style="color: #666; font-weight: 500;">
+                    <p>Hourly Rate: $<span id="hourlyRate">0</span>/hr</p>
+                    <p>Daily Rate: $<span id="dailyRate">0</span>/day</p>
+                </div>
+                <div id="socialLinks" style="margin-top: 1rem; display: flex; gap: 10px;">
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h3>Services</h3>
+            <ul id="serviceList" style="list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px;">
+               
+            </ul>
+        </div>
+
+        <div class="profile-section" style="margin-top: 2rem;">
+            <h3>Portfolio / Bio</h3>
+            <p id="portfolioText" style="line-height: 1.6; color: #4b5563; white-space: pre-wrap;"></p>
+        </div>
+
+        <div class="action-buttons" style="margin-top: 2rem; text-align: center;">
+            <button id="bookNowBtn" class="book-btn" style="max-width: 300px; font-size: 1.1rem;">Book This
+                Provider</button>
+            <button id="editPublicProfileBtn" class="book-btn"
+                style="display:none; max-width: 300px; font-size: 1.1rem; background-color: #6b7280;">Edit
+                Profile</button>
+        </div>
+
+        <div class="reviews-section" style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 2rem;">
+            <h3>Reviews</h3>
+            <div id="reviewsList">
+                <p>No reviews yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>

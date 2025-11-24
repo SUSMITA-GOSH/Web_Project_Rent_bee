@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword }
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, doc, getDoc }
+  from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCbKyDJwcUSMcfUcj0AvH-xVM64Jw3UB0M",
@@ -13,45 +15,27 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// ROLE SELECT LOGIC
-let selectedRole = null;
-const roleOptions = document.querySelectorAll(".role-option");
 
-roleOptions.forEach(opt => {
-  opt.addEventListener("click", () => {
-    roleOptions.forEach(o => o.classList.remove("selected"));
-    opt.classList.add("selected");
-    selectedRole = opt.dataset.role;
-  });
-});
-
-// LOGIN LOGIC
 document.getElementById("loginBtn").onclick = async () => {
   const email = document.getElementById("email").value;
   const pass = document.getElementById("password").value;
 
-  if (!selectedRole) {
-    alert("Please select Provider or Receiver.");
-    return;
-  }
-
-  const recaptchaResponse = grecaptcha.getResponse();
-  if (!recaptchaResponse) {
-    alert("Please verify that you are not a robot.");
-    return;
-  }
-
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
+    const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+    const user = userCredential.user;
 
     
-    if (selectedRole === "provider") {
-      window.location.href = "provider-dashboard.html";
-    } else if (selectedRole === "receiver") {
-      window.location.href = "receiver-dashboard.html";
+    const docRef = doc(db, "users", user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+     
+      window.location.href = "index.html";
     } else {
-      alert("Role not recognized.");
+      
+      window.location.href = "index.html";
     }
 
   } catch (e) {
@@ -59,3 +43,21 @@ document.getElementById("loginBtn").onclick = async () => {
     console.log(e.code, e.message);
   }
 };
+const togglePassword = document.querySelector('#togglePassword');
+const password = document.querySelector('#password');
+
+if (togglePassword) {
+  togglePassword.addEventListener('click', function (e) {
+    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+    password.setAttribute('type', type);
+
+    
+    if (type === 'password') {
+      
+      this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+    } else {
+      
+      this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye-off"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+    }
+  });
+}
