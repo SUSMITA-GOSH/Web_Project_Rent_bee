@@ -59,7 +59,7 @@
         style="width: 100%; padding-right: 40px; box-sizing: border-box;">
       <span id="togglePassword"
         style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
-        
+
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
           class="feather feather-eye">
@@ -126,12 +126,42 @@
       try {
         const user = await createUserWithEmailAndPassword(auth, email, pass);
         await setDoc(doc(db, "users", user.user.uid), { name, phone, division, role, email });
-        alert("Account created!");
-        window.location.href = "index.html";
+
+        
+        showWelcomeModal();
       } catch (e) {
         alert(e.message);
       }
     };
+
+    
+    function showWelcomeModal() {
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; justify-content: center; align-items: center;';
+
+      modal.innerHTML = `
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; border-radius: 20px; text-align: center; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: slideIn 0.5s ease-out;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+        <h1 style="color: white; font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">Welcome to RentBee!</h1>
+        <p style="color: rgba(255,255,255,0.95); font-size: 1.2rem; margin-bottom: 2rem; line-height: 1.6;">We're thrilled to have you here! 🐝<br>Start exploring amazing local services or set up your profile to offer your skills.</p>
+        <button onclick="window.location.href='index.html'" style="background: white; color: #667eea; padding: 1rem 2rem; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.2s;">
+          Let's Get Started! 🚀
+        </button>
+      </div>
+    `;
+
+      document.body.appendChild(modal);
+
+      
+      const style = document.createElement('style');
+      style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    `;
+      document.head.appendChild(style);
+    }
 
 
   </script>
