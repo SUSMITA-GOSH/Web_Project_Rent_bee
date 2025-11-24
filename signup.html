@@ -69,19 +69,24 @@ document.getElementById("signupBtn").onclick = async () => {
   }catch(e){ alert(e.message); }
 };
 
-document.getElementById("googleSignup").onclick = async () => {
-  try{
-    const user = await signInWithPopup(auth, google);
-    const role = localStorage.getItem("selectedRole") || "none";
-    await setDoc(doc(db, "users", user.user.uid), { 
-      name: user.user.displayName,
-      email: user.user.email,
-      role
-    });
-    alert("Signed up with Gmail!");
+document.getElementById("signupBtn").onclick = async () => {
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+  const email = document.getElementById("email").value;
+  const division = document.getElementById("division").value;
+  const pass = document.getElementById("password").value;
+  const role = localStorage.getItem("selectedRole") || "none";
+
+  try {
+    const user = await createUserWithEmailAndPassword(auth, email, pass);
+    await setDoc(doc(db, "users", user.user.uid), { name, phone, division, role, email });
+    alert("Account created!");
     window.location.href = "login.html";
-  }catch(e){ alert(e.message); }
+  } catch(e) {
+    alert(e.message);
+  }
 };
+
 
 </script>
 
