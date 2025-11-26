@@ -1,94 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>RentBee — Sign Up</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body{font-family:Arial;background:#f6f7fb;padding:30px}
-.wrap{max-width:420px;margin:40px auto;background:white;padding:25px;border-radius:10px}
-input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #ccc}
-button{width:100%;padding:12px;border:none;border-radius:6px;background:#45a049;color:white;margin-top:10px}
-.oauth-btn{background:#db4437}
-</style>
+<head>
+  <meta charset="UTF-8">
+  <title>RentBee — Sign Up</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f6f7fb;
+      padding: 30px
+    }
+
+    .wrap {
+      max-width: 420px;
+      margin: 40px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #45a049;
+      color: white;
+      margin-top: 10px
+    }
+
+    .oauth-btn {
+      background: #db4437
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="wrap">
-<h2>Sign Up</h2>
+  <div class="wrap">
+    <h2>Sign Up</h2>
 
-<input id="name" placeholder="Full Name">
-<input id="phone" placeholder="Phone Number">
-<input id="email" placeholder="Email">
-<input id="division" placeholder="Division">
-<input id="password" type="password" placeholder="Password">
+    <input id="name" placeholder="Full Name">
+    <input id="phone" placeholder="Phone Number">
+    <input id="email" placeholder="Email">
+    <input id="division" placeholder="Division">
+    <div class="password-container" style="position: relative;">
+      <input id="password" type="password" placeholder="Password"
+        style="width: 100%; padding-right: 40px; box-sizing: border-box;">
+      <span id="togglePassword"
+        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
 
-<button id="signupBtn">Sign Up</button>
-<button class="oauth-btn" id="googleSignup">Continue with Gmail</button>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="feather feather-eye">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </span>
+    </div>
 
-<p style="text-align:center;margin-top:12px">
-Already have an account? <a href="login.html">Login</a>
-</p>
-</div>
+    <button id="signupBtn">Sign Up</button>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup }
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, setDoc, doc } 
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    <p style="text-align:center;margin-top:12px">
+      Already have an account? <a href="login.html">Login</a>
+    </p>
+  </div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCbKyDJwcUSMcfUcj0AvH-xVM64Jw3UB0M",
-  authDomain: "ntbee-185f6.firebaseapp.com",
-  projectId: "ntbee-185f6",
-  storageBucket: "ntbee-185f6.appspot.com",
-  messagingSenderId: "1023710538392",
-  appId: "1:1023710538392:web:4a09e23d56f53b5cedfeed"
-};
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup }
+      from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, setDoc, doc }
+      from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const google = new GoogleAuthProvider();
+    const firebaseConfig = {
+      apiKey: "AIzaSyCbKyDJwcUSMcfUcj0AvH-xVM64Jw3UB0M",
+      authDomain: "ntbee-185f6.firebaseapp.com",
+      projectId: "ntbee-185f6",
+      storageBucket: "ntbee-185f6.appspot.com",
+      messagingSenderId: "1023710538392",
+      appId: "1:1023710538392:web:4a09e23d56f53b5cedfeed"
+    };
 
-document.getElementById("signupBtn").onclick = async () => {
-  const name = name.value;
-  const phone = phone.value;
-  const email = email.value;
-  const division = division.value;
-  const pass = password.value;
-  const role = localStorage.getItem("selectedRole") || "none";
-
-  try{
-    const user = await createUserWithEmailAndPassword(auth, email, pass);
-    await setDoc(doc(db, "users", user.user.uid), { name, phone, division, role, email });
-    alert("Account created!");
-    window.location.href = "login.html";
-  }catch(e){ alert(e.message); }
-};
-
-document.getElementById("signupBtn").onclick = async () => {
-  const name = document.getElementById("name").value;
-  const phone = document.getElementById("phone").value;
-  const email = document.getElementById("email").value;
-  const division = document.getElementById("division").value;
-  const pass = document.getElementById("password").value;
-  const role = localStorage.getItem("selectedRole") || "none";
-
-  try {
-    const user = await createUserWithEmailAndPassword(auth, email, pass);
-    await setDoc(doc(db, "users", user.user.uid), { name, phone, division, role, email });
-    alert("Account created!");
-    window.location.href = "login.html";
-  } catch(e) {
-    alert(e.message);
-  }
-};
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const google = new GoogleAuthProvider();
 
 
-</script>
+
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    if (togglePassword) {
+      togglePassword.addEventListener('click', function (e) {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+
+        if (type === 'password') {
+          this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+        } else {
+          this.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye-off"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+        }
+      });
+    }
+
+    document.getElementById("signupBtn").onclick = async () => {
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const email = document.getElementById("email").value;
+      const division = document.getElementById("division").value;
+      const pass = document.getElementById("password").value;
+      const role = localStorage.getItem("selectedRole") || "none";
+
+      try {
+        const user = await createUserWithEmailAndPassword(auth, email, pass);
+        await setDoc(doc(db, "users", user.user.uid), { name, phone, division, role, email });
+
+        
+        showWelcomeModal();
+      } catch (e) {
+        alert(e.message);
+      }
+    };
+
+    
+    function showWelcomeModal() {
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; justify-content: center; align-items: center;';
+
+      modal.innerHTML = `
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; border-radius: 20px; text-align: center; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); animation: slideIn 0.5s ease-out;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+        <h1 style="color: white; font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">Welcome to RentBee!</h1>
+        <p style="color: rgba(255,255,255,0.95); font-size: 1.2rem; margin-bottom: 2rem; line-height: 1.6;">We're thrilled to have you here! 🐝<br>Start exploring amazing local services or set up your profile to offer your skills.</p>
+        <button onclick="window.location.href='index.html'" style="background: white; color: #667eea; padding: 1rem 2rem; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.2s;">
+          Let's Get Started! 🚀
+        </button>
+      </div>
+    `;
+
+      document.body.appendChild(modal);
+
+      
+      const style = document.createElement('style');
+      style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    `;
+      document.head.appendChild(style);
+    }
+
+
+  </script>
 
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <title>RentBee — Login</title>
@@ -7,22 +8,36 @@
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <link rel="stylesheet" href="login.css">
 </head>
+
 <body>
-<div class="wrap">
-  <h2>Login</h2>
-  
-  <div class="role-box">
-    <div class="role-option" data-role="provider">Provider</div>
-    <div class="role-option" data-role="receiver">Receiver</div>
+  <div class="wrap">
+    <h2>Login</h2>
+
+    <input id="email" placeholder="Email" type="email">
+    <div class="password-container" style="position: relative;">
+      <input id="password" placeholder="Password" type="password"
+        style="width: 100%; padding-right: 40px; box-sizing: border-box;">
+      <span id="togglePassword"
+        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+       
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="feather feather-eye">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </span>
+    </div>
+    <div style="text-align: right; margin-bottom: 10px;">
+      <a href="#" onclick="this.href='forgot-password.html?email='+document.getElementById('email').value"
+        style="color: #666; font-size: 14px; text-decoration: none;">Forgot Password?</a>
+    </div>
+    <button id="loginBtn">Login</button>
+    <p class="center">
+      Don't have an account? <a href="role-select.html">Create account</a>
+    </p>
   </div>
-  <input id="email" placeholder="Email" type="email">
-  <input id="password" placeholder="Password" type="password">
-  <div class="g-recaptcha" data-sitekey="6Lf5qQ0sAAAAAPYwdI1rnBYBUgtcJmg7oqO5IhV8"></div>
-  <button id="loginBtn">Login</button>
-  <p class="center">
-    Don't have an account? <a href="role-select.html">Create account</a>
-  </p>
-</div>
-<script type="module" src="login.js"></script>
+  <script type="module" src="login.js"></script>
 </body>
+
 </html>

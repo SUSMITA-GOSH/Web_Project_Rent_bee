@@ -1,57 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Profile Setup with Image & Payment</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
+  <nav class="navbar">
+    <div class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">RentBee</a></div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="profile.html">My Profile</a>
+    </div>
+  </nav>
 
   <h2>Your Profile Setup</h2>
   <form id="profileForm" enctype="multipart/form-data">
-    <label>Name:<br />
+    <label>Name:
       <input type="text" id="name" required />
-    </label><br />
+    </label>
 
-    <label>Account Type:<br />
+    <label>Account Type:
       <select id="accountType" required>
         <option value="">Select type</option>
-        <option value="client">Provider</option>
-        <option value="producer">Receiver</option>
+        <option value="provider">Provider</option>
+        <option value="receiver">Receiver</option>
       </select>
-    </label><br />
+    </label>
 
-    <div id="producerFields" style="display:none;">
-      <label>Profile Image:<br />
+   
+    <div id="commonFields">
+      <label>Profile Image:
         <input type="file" id="profileImage" accept="image/*" />
-      </label><br />
-      <label>Services (comma separated):<br />
-        <input type="text" id="services" />
-      </label><br />
-      <label>Portfolio / Work Description:<br />
-        <textarea id="portfolio" rows="4" placeholder="Describe your work or add portfolio link"></textarea>
-      </label><br />
-      <label>WhatsApp Number:<br />
+        <img id="imagePreview" src="" alt="Image Preview"
+          style="display:none; width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-top: 10px;" />
+      </label>
+
+      <label>Bio / About Me / Projects:
+        <textarea id="portfolio" rows="4"
+          placeholder="Describe yourself, your projects, or what you are looking for..."></textarea>
+      </label>
+
+      <label>WhatsApp Number:
         <input type="text" id="whatsapp" placeholder="+1234567890" />
-      </label><br />
-      <label>Gmail:<br />
+      </label>
+      <label>Gmail:
         <input type="email" id="gmail" placeholder="you@example.com" />
-      </label><br />
-      <label>GitHub Link:<br />
-        <input type="url" id="github" placeholder="https://github.com/username" />
-      </label><br />
-      <label>Hourly Rate ($):<br />
-        <input type="number" id="hourlyRate" min="0" step="0.01" placeholder="e.g. 15" />
-      </label><br />
-      <label>Daily Rate ($):<br />
-        <input type="number" id="dailyRate" min="0" step="0.01" placeholder="e.g. 100" />
-      </label><br />
+      </label>
+      <label>Facebook Profile:
+        <input type="url" id="facebook" placeholder="https://facebook.com/username" />
+      </label>
+      <label>Twitter/X Profile:
+        <input type="url" id="twitter" placeholder="https://twitter.com/username" />
+      </label>
     </div>
 
-    <button type="submit">Save Profile</button>
+    
+    <div id="producerFields" style="display:none;">
+      <label>Services (comma separated):
+        <input type="text" id="services" placeholder="e.g. Home Cook, Tutor" />
+      </label>
+      <label>GitHub Link:
+        <input type="url" id="github" placeholder="https://github.com/username" />
+      </label>
+      <label>Hourly Rate ($):
+        <input type="number" id="hourlyRate" min="0" step="0.01" placeholder="e.g. 15" />
+      </label>
+      <label>Daily Rate ($):
+        <input type="number" id="dailyRate" min="0" step="0.01" placeholder="e.g. 100" />
+      </label>
+    </div>
+
+    <div class="button-group">
+      <button type="button" id="editProfileBtn"
+        style="display:none; background-color: var(--secondary-color); color: white;">Edit Profile</button>
+      <button type="submit" id="saveProfileBtn">Save Profile</button>
+      <button type="button" id="viewProfileBtn" style="background-color: #6b7280; color: white;">View Public
+        Profile</button>
+    </div>
   </form>
 
   <script src="app.js" type="module"></script>
 </body>
+
 </html>

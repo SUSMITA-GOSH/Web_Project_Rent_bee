@@ -11,6 +11,9 @@ const firebaseConfig = {
   appId: "1:1023710538392:web:4a09e23d56f53b5cedfeed"
 };
 
-const app = initializeApp(firebaseConfig);
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const storage = getStorage(app);
