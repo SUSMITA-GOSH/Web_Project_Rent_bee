@@ -26,15 +26,25 @@ document.getElementById("loginBtn").onclick = async () => {
     const userCredential = await signInWithEmailAndPassword(auth, email, pass);
     const user = userCredential.user;
 
-    
+    // Fetch user data to determine role
     const docRef = doc(db, "users", user.uid);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-     
-      window.location.href = "index.html";
+      const userData = docSnap.data();
+      const userRole = userData.role || userData.type;
+
+      // Redirect based on role
+      if (userRole === 'provider' || userRole === 'producer') {
+        window.location.href = "provider-dashboard.html";
+      } else if (userRole === 'receiver' || userRole === 'consumer') {
+        window.location.href = "client-dashboard.html";
+      } else {
+        // Default to index if role is not set
+        window.location.href = "index.html";
+      }
     } else {
-      
+      // No user data, redirect to index
       window.location.href = "index.html";
     }
 
