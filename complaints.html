@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RentBee Admin — Complaints Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        h1 {
+            color: #ffc107;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: #ffc107;
+            border-bottom-color: #ffc107;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            color: #ffc107;
+        }
+
+        #complaints-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .complaint-card {
+            background-color: white;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .complaint-card.resolved {
+            border-left-color: #28a745;
+            opacity: 0.7;
+        }
+
+        .complaint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .complaint-meta {
+            flex: 1;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background-color: #ffc107;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .user-type {
+            background-color: #6c757d;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-resolved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .complaint-subject {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .complaint-time {
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+        .complaint-details {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .complaint-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-resolve {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-resolve:hover {
+            background-color: #218838;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .filter-info {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>RentBee Admin — Complaints Dashboard</h1>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" data-filter="all">All Complaints</button>
+            <button class="tab" data-filter="pending">Pending</button>
+            <button class="tab" data-filter="resolved">Resolved</button>
+        </div>
+
+        <div class="filter-info" id="filterInfo">Showing all complaints</div>
+
+        <div id="complaints-container">
+            <div class="empty-state">Loading complaints...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbKyDJwcUSMcfUcj0AvH-xVM64Jw3UB0M",
+            authDomain: "ntbee-185f6.firebaseapp.com",
+            projectId: "ntbee-185f6",
+            storageBucket: "ntbee-185f6.appspot.com",
+            messagingSenderId: "1023710538392",
+            appId: "1:1023710538392:web:4a09e23d56f53b5cedfeed"
+        };
+
+        // Initialize Firebase
+        let app;
+        if (!getApps().length) {
+            app = initializeApp(firebaseConfig);
+        } else {
+            app = getApps()[0];
+        }
+
+        const db = getFirestore(app);
+        const complaintsContainer = document.getElementById('complaints-container');
+        const filterInfo = document.getElementById('filterInfo');
+
+        let allComplaints = [];
+        let currentFilter = 'all';
+
+        // Listen for complaints
+        const q = query(collection(db, 'complaints'), orderBy('createdAt', 'desc'));
+
+        onSnapshot(q, (snapshot) => {
+            allComplaints = [];
+
+            snapshot.forEach((doc) => {
+                allComplaints.push({ id: doc.id, ...doc.data() });
+            });
+
+            renderComplaints();
+        }, (error) => {
+            console.error("Database Error:", error);
+            complaintsContainer.innerHTML = `
+                <div style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px;">
+                    <strong>Error:</strong> Could not connect to database. <br>
+                    ${error.message}
+                </div>
+            `;
+        });
+
+        // Tab filtering
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                renderComplaints();
+            });
+        });
+
+        function renderComplaints() {
+            let filtered = allComplaints;
+
+            if (currentFilter === 'pending') {
+                filtered = allComplaints.filter(c => c.status === 'pending');
+                filterInfo.textContent = `Showing ${filtered.length} pending complaints`;
+            } else if (currentFilter === 'resolved') {
+                filtered = allComplaints.filter(c => c.status === 'resolved');
+                filterInfo.textContent = `Showing ${filtered.length} resolved complaints`;
+            } else {
+                filterInfo.textContent = `Showing all ${filtered.length} complaints`;
+            }
+
+            if (filtered.length === 0) {
+                complaintsContainer.innerHTML = '<div class="empty-state">No complaints found.</div>';
+                return;
+            }
+
+            complaintsContainer.innerHTML = filtered.map(complaint => createComplaintCard(complaint)).join('');
+        }
+
+        function createComplaintCard(complaint) {
+            const date = complaint.createdAt ? new Date(complaint.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
+            const isResolved = complaint.status === 'resolved';
+
+            return `
+                <div class="complaint-card ${isResolved ? 'resolved' : ''}">
+                    <div class="complaint-header">
+                        <div class="complaint-meta">
+                            <div>
+                                <span class="category-badge">${complaint.category || 'Other'}</span>
+                                <span class="user-type">${complaint.userType || 'Unknown'}</span>
+                            </div>
+                            <div class="complaint-subject">${complaint.subject}</div>
+                            <div class="complaint-time">
+                                User ID: ${complaint.userId || 'Anonymous'} • ${date}
+                            </div>
+                        </div>
+                        <span class="status-badge status-${complaint.status || 'pending'}">
+                            ${complaint.status === 'resolved' ? '✓ Resolved' : '⏳ Pending'}
+                        </span>
+                    </div>
+                    
+                    <div class="complaint-details">
+                        ${complaint.details || 'No details provided.'}
+                    </div>
+                    
+                    <div class="complaint-actions">
+                        ${!isResolved ? `
+                            <button class="btn btn-resolve" onclick="resolveComplaint('${complaint.id}')">
+                                Mark as Resolved
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-delete" onclick="deleteComplaint('${complaint.id}')">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.resolveComplaint = async (complaintId) => {
+            if (!confirm('Mark this complaint as resolved?')) return;
+
+            try {
+                await updateDoc(doc(db, 'complaints', complaintId), {
+                    status: 'resolved',
+                    resolvedAt: new Date()
+                });
+            } catch (error) {
+                console.error('Error resolving complaint:', error);
+                alert('Failed to resolve complaint: ' + error.message);
+            }
+        };
+
+        window.deleteComplaint = async (complaintId) => {
+            if (!confirm('Are you sure you want to delete this complaint? This action cannot be undone.')) return;
+
+            try {
+                await deleteDoc(doc(db, 'complaints', complaintId));
+            } catch (error) {
+                console.error('Error deleting complaint:', error);
+                alert('Failed to delete complaint: ' + error.message);
+            }
+        };
+    </script>
+</body>
+
+</html>

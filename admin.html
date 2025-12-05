@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RentBee Admin Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            background: linear-gradient(135deg, #dc3545, #ffc107);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            color: #dc3545;
+            border-bottom-color: #dc3545;
+            font-weight: 600;
+        }
+
+        .tab:hover {
+            color: #dc3545;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* SOS Alert Styles */
+        .alert-card {
+            background-color: #fff5f5;
+            border: 1px solid #dc3545;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(220, 53, 69, 0.1);
+            animation: slideIn 0.5s ease-out;
+            position: relative;
+        }
+
+        .alert-card.new {
+            border-left: 5px solid #dc3545;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .user-type {
+            background-color: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .time {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .details {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .btn-map {
+            display: inline-block;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-map:hover {
+            background-color: #c82333;
+        }
+
+        /* Complaint Styles */
+        .complaint-card {
+            background-color: white;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .complaint-card.resolved {
+            border-left-color: #28a745;
+            opacity: 0.7;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background-color: #ffc107;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-resolved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .complaint-subject {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .complaint-details {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .complaint-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-resolve {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-resolve:hover {
+            background-color: #218838;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            background-color: #e9ecef;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .filter-tab.active {
+            background-color: #ffc107;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .filter-info {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ RentBee Admin Dashboard</h1>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="sos">🚨 SOS Alerts</button>
+            <button class="tab" data-tab="complaints">⚠️ Complaints</button>
+        </div>
+
+        <!-- SOS Alerts Tab -->
+        <div id="sos-tab" class="tab-content active">
+            <div id="alerts-container">
+                <div class="empty-state">Waiting for SOS alerts...</div>
+            </div>
+        </div>
+
+        <!-- Complaints Tab -->
+        <div id="complaints-tab" class="tab-content">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">All</button>
+                <button class="filter-tab" data-filter="pending">Pending</button>
+                <button class="filter-tab" data-filter="resolved">Resolved</button>
+            </div>
+            <div class="filter-info" id="filterInfo">Showing all complaints</div>
+            <div id="complaints-container">
+                <div class="empty-state">Loading complaints...</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCbKyDJwcUSMcfUcj0AvH-xVM64Jw3UB0M",
+            authDomain: "ntbee-185f6.firebaseapp.com",
+            projectId: "ntbee-185f6",
+            storageBucket: "ntbee-185f6.appspot.com",
+            messagingSenderId: "1023710538392",
+            appId: "1:1023710538392:web:4a09e23d56f53b5cedfeed"
+        };
+
+        let app;
+        if (!getApps().length) {
+            app = initializeApp(firebaseConfig);
+        } else {
+            app = getApps()[0];
+        }
+
+        const db = getFirestore(app);
+        const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+            });
+        });
+
+        // ===== SOS ALERTS =====
+        const alertsContainer = document.getElementById('alerts-container');
+        const sosQuery = query(collection(db, 'sos_alerts'), orderBy('createdAt', 'desc'));
+        let isInitialSOSLoad = true;
+
+        onSnapshot(sosQuery, (snapshot) => {
+            const emptyState = alertsContainer.querySelector('.empty-state');
+            if (emptyState && !snapshot.empty) {
+                emptyState.remove();
+            }
+
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === "added") {
+                    const alertData = change.doc.data();
+                    const alertId = change.doc.id;
+
+                    if (!document.getElementById('sos-' + alertId)) {
+                        createAlertCard(alertData, alertId);
+                        if (!isInitialSOSLoad) {
+                            notificationSound.play().catch(e => console.log('Audio play failed:', e));
+                        }
+                    }
+                }
+            });
+
+            isInitialSOSLoad = false;
+        }, (error) => {
+            console.error("Database Error:", error);
+            const alertsContainer = document.getElementById('alerts-container');
+            alertsContainer.innerHTML += `
+                <div style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                    <strong>Error:</strong> Could not connect to database. <br>
+                    ${error.message} <br><br>
+                    <em>Tip: Check your Firestore Rules. You might need to allow read access to 'sos_alerts'.</em>
+                </div>
+            `;
+        });
+
+        function createAlertCard(data, id) {
+            const card = document.createElement('div');
+            card.className = 'alert-card new';
+            card.id = 'sos-' + id;
+
+            const date = data.time ? new Date(data.time).toLocaleString() : 'Unknown Time';
+            const userType = data.userType || 'Unknown';
+            const userId = data.userId || 'Anonymous';
+
+            card.innerHTML = `
+                <div class="alert-header">
+                    <span class="user-type">${userType}</span>
+                    <span class="time">${date}</span>
+                </div>
+                <div class="details">
+                    <strong>User ID:</strong> ${userId}<br>
+                    <strong>Location:</strong> ${data.lat.toFixed(6)}, ${data.lng.toFixed(6)}<br>
+                    <strong>Status:</strong> ${data.status || 'Active'}
+                </div>
+                <a href="https://www.google.com/maps?q=${data.lat},${data.lng}" target="_blank" class="btn-map">
+                    View on Google Maps
+                </a>
+            `;
+
+            alertsContainer.appendChild(card);
+        }
+
+        // ===== COMPLAINTS =====
+        const complaintsContainer = document.getElementById('complaints-container');
+        const filterInfo = document.getElementById('filterInfo');
+        let allComplaints = [];
+        let currentFilter = 'all';
+
+        const complaintsQuery = query(collection(db, 'complaints'), orderBy('createdAt', 'desc'));
+
+        onSnapshot(complaintsQuery, (snapshot) => {
+            allComplaints = [];
+            snapshot.forEach((doc) => {
+                allComplaints.push({ id: doc.id, ...doc.data() });
+            });
+            renderComplaints();
+        }, (error) => {
+            console.error("Database Error:", error);
+            const complaintsContainer = document.getElementById('complaints-container');
+            complaintsContainer.innerHTML = `
+                <div style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                    <strong>Error:</strong> Could not connect to database. <br>
+                    ${error.message} <br><br>
+                    <em>Tip: Check your Firestore Rules. You might need to allow read access to 'complaints'.</em>
+                </div>
+            `;
+        });
+
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                renderComplaints();
+            });
+        });
+
+        function renderComplaints() {
+            let filtered = allComplaints;
+
+            if (currentFilter === 'pending') {
+                filtered = allComplaints.filter(c => c.status === 'pending');
+                filterInfo.textContent = `Showing ${filtered.length} pending complaints`;
+            } else if (currentFilter === 'resolved') {
+                filtered = allComplaints.filter(c => c.status === 'resolved');
+                filterInfo.textContent = `Showing ${filtered.length} resolved complaints`;
+            } else {
+                filterInfo.textContent = `Showing all ${filtered.length} complaints`;
+            }
+
+            if (filtered.length === 0) {
+                complaintsContainer.innerHTML = '<div class="empty-state">No complaints found.</div>';
+                return;
+            }
+
+            complaintsContainer.innerHTML = filtered.map(complaint => createComplaintCard(complaint)).join('');
+        }
+
+        function createComplaintCard(complaint) {
+            const date = complaint.createdAt ? new Date(complaint.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
+            const isResolved = complaint.status === 'resolved';
+
+            return `
+                <div class="complaint-card ${isResolved ? 'resolved' : ''}">
+                    <div class="alert-header">
+                        <div style="flex: 1;">
+                            <div>
+                                <span class="category-badge">${complaint.category || 'Other'}</span>
+                                <span class="user-type">${complaint.userType || 'Unknown'}</span>
+                            </div>
+                            <div class="complaint-subject">${complaint.subject}</div>
+                            <div class="time">User ID: ${complaint.userId || 'Anonymous'} • ${date}</div>
+                        </div>
+                        <span class="status-badge status-${complaint.status || 'pending'}">
+                            ${complaint.status === 'resolved' ? '✓ Resolved' : '⏳ Pending'}
+                        </span>
+                    </div>
+
+                    <div class="complaint-details">${complaint.details || 'No details provided.'}</div>
+
+                    <div class="complaint-actions">
+                        ${!isResolved ? `
+                            <button class="btn btn-resolve" onclick="resolveComplaint('${complaint.id}')">
+                                Mark as Resolved
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-delete" onclick="deleteComplaint('${complaint.id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.resolveComplaint = async (complaintId) => {
+            if (!confirm('Mark this complaint as resolved?')) return;
+            try {
+                await updateDoc(doc(db, 'complaints', complaintId), {
+                    status: 'resolved',
+                    resolvedAt: new Date()
+                });
+            } catch (error) {
+                alert('Failed to resolve: ' + error.message);
+            }
+        };
+
+        window.deleteComplaint = async (complaintId) => {
+            if (!confirm('Delete this complaint permanently?')) return;
+            try {
+                await deleteDoc(doc(db, 'complaints', complaintId));
+            } catch (error) {
+                alert('Failed to delete: ' + error.message);
+            }
+        };
+    </script>
+</body>
+
+</html>
