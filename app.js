@@ -10,9 +10,14 @@ const accountTypeSelect = document.getElementById('accountType');
 const serviceField = document.getElementById('producerFields');
 const profileForm = document.getElementById('profileForm');
 const profileImageInput = document.getElementById('profileImage');
-const loginLink = document.getElementById('loginLink');
-const profileLink = document.getElementById('profileLink');
-const logoutBtn = document.getElementById('logoutBtn');
+
+// Navbar Elements
+const navLoginItem = document.getElementById('navLoginItem');
+const navSignupItem = document.getElementById('navSignupItem');
+const navProfileItem = document.getElementById('navProfileItem');
+const navLogoutItem = document.getElementById('navLogoutItem');
+const navLogoutBtn = document.getElementById('navLogoutBtn');
+
 const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
 const resultsSection = document.getElementById('resultsSection');
@@ -21,10 +26,34 @@ const resultsGrid = document.getElementById('resultsGrid');
 // Auth State Listener
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    if (loginLink) loginLink.style.display = 'none';
-    if (profileLink) profileLink.style.display = 'inline-block';
+    // Logged In
+    if (navLoginItem) navLoginItem.style.display = 'none';
+    if (navSignupItem) navSignupItem.style.display = 'none';
+
+    if (navProfileItem) {
+      navProfileItem.style.display = 'list-item';
+
+      // Load Profile Image for Navbar
+      const navImg = document.getElementById('navProfileImg');
+      if (navImg) {
+        const docSnap = await getDoc(doc(db, 'users', user.uid));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.profileImageURL) {
+            navImg.src = data.profileImageURL;
+          }
+        }
+      }
+    }
+
+    // Show Logout Button
+    if (navLogoutItem) {
+      navLogoutItem.style.display = 'list-item';
+    }
+
+    // Logout Logic
+    const logoutBtn = document.getElementById('navLogoutBtn');
     if (logoutBtn) {
-      logoutBtn.style.display = 'inline-block';
       logoutBtn.onclick = () => signOut(auth).then(() => window.location.reload());
     }
 
@@ -42,14 +71,21 @@ onAuthStateChanged(auth, async (user) => {
 
         // Auto-detect role/type
         const userRole = data.role || data.type;
+        console.log('User role:', userRole); // DEBUG
+        console.log('serviceField element:', serviceField); // DEBUG
+
+        // Store the user role globally so we can access it when saving
+        window.currentUserRole = userRole || 'provider'; // Default to provider if undefined
+
         if (accountTypeSelect && userRole) {
           accountTypeSelect.value = userRole;
-          serviceField.style.display = (userRole === 'provider' || userRole === 'producer') ? 'block' : 'none';
-
-          // Hide the selector if role is already set to prevent changing it
-          // accountTypeSelect.disabled = true; // Optional: disable instead of hide
-          // Or hide the parent label to make it cleaner
           accountTypeSelect.parentElement.style.display = 'none';
+        }
+
+        // Show provider fields unless explicitly a receiver
+        if (serviceField) {
+          serviceField.style.display = (userRole === 'receiver') ? 'none' : 'block';
+          console.log('Set serviceField display to:', serviceField.style.display); // DEBUG
         }
         if (document.getElementById('services')) document.getElementById('services').value = data.services ? data.services.join(', ') : '';
         if (document.getElementById('portfolio')) document.getElementById('portfolio').value = data.portfolio || '';
@@ -57,6 +93,7 @@ onAuthStateChanged(auth, async (user) => {
         if (document.getElementById('gmail')) document.getElementById('gmail').value = data.gmail || data.email || user.email || '';
         if (document.getElementById('facebook')) document.getElementById('facebook').value = data.facebook || '';
         if (document.getElementById('twitter')) document.getElementById('twitter').value = data.twitter || '';
+        if (document.getElementById('address')) document.getElementById('address').value = data.address || '';
         if (document.getElementById('github')) document.getElementById('github').value = data.github || '';
         if (document.getElementById('hourlyRate')) document.getElementById('hourlyRate').value = data.hourlyRate || '';
         if (document.getElementById('dailyRate')) document.getElementById('dailyRate').value = data.dailyRate || '';
@@ -82,16 +119,18 @@ onAuthStateChanged(auth, async (user) => {
       });
     }
   } else {
-    if (loginLink) loginLink.style.display = 'inline-block';
-    if (profileLink) profileLink.style.display = 'none';
-    if (logoutBtn) logoutBtn.style.display = 'none';
+    // Logged Out
+    if (navLoginItem) navLoginItem.style.display = 'list-item';
+    if (navSignupItem) navSignupItem.style.display = 'list-item';
+    if (navProfileItem) navProfileItem.style.display = 'none';
+    if (navLogoutItem) navLogoutItem.style.display = 'none';
   }
 });
 
 // Profile Form Handling
 if (accountTypeSelect) {
-  accountTypeSelect.addEventListener('change', e => {
-    serviceField.style.display = e.target.value === 'provider' ? 'block' : 'none';
+  accountTypeSelect.addEventListener('change', (e) => {
+    serviceField.style.display = (e.target.value === 'provider' || e.target.value === 'producer') ? 'block' : 'none';
   });
 }
 
@@ -149,20 +188,19 @@ if (profileForm) {
     }
 
     const name = document.getElementById('name').value.trim();
-    // Get type from select, or if hidden/disabled, try to find it from existing data or hidden input
-    // Since we might hide the select, we should ensure we still capture the value.
-    // The value of a hidden select might still be readable.
-    let accountType = accountTypeSelect.value;
+    // Get type from global variable (set when profile loaded) or from select
+    let accountType = window.currentUserRole || accountTypeSelect.value || 'provider';
+    console.log('Account type for save:', accountType); // DEBUG
 
     // If accountType is empty (e.g. if we hid it and didn't set it properly, though we did set it above),
     // we should rely on what was loaded. But for safety, let's assume the value is there.
 
-    const services = document.getElementById('services').value.trim();
-    const portfolio = document.getElementById('portfolio').value.trim();
-    const whatsapp = document.getElementById('whatsapp').value.trim();
-    const gmail = document.getElementById('gmail').value.trim();
-    const facebook = document.getElementById('facebook').value.trim();
-    const github = document.getElementById('github').value.trim();
+    const services = document.getElementById('services')?.value.trim() || '';
+    const portfolio = document.getElementById('portfolio')?.value.trim() || '';
+    const whatsapp = document.getElementById('whatsapp')?.value.trim() || '';
+    const gmail = document.getElementById('gmail')?.value.trim() || '';
+    const facebook = document.getElementById('facebook')?.value.trim() || '';
+    const github = document.getElementById('github')?.value.trim() || '';
     const hourlyRate = parseFloat(document.getElementById('hourlyRate')?.value) || 0;
     const dailyRate = parseFloat(document.getElementById('dailyRate')?.value) || 0;
 
@@ -180,7 +218,8 @@ if (profileForm) {
       whatsapp: whatsapp,
       gmail: gmail,
       facebook: facebook,
-      twitter: document.getElementById('twitter').value.trim()
+      twitter: document.getElementById('twitter').value.trim(),
+      address: document.getElementById('address')?.value.trim() || ''
     };
 
     // Handle Image Upload for Everyone
@@ -222,12 +261,20 @@ if (profileForm) {
       profileData.dailyRate = dailyRate;
     }
 
+    console.log('Profile data to save:', profileData); // DEBUG
+
     try {
       saveBtn.textContent = 'Saving Data...'; // Progress update
+      console.log('Attempting to save to Firestore...'); // DEBUG
       await setDoc(doc(db, 'users', user.uid), profileData, { merge: true });
+      console.log('Save successful!'); // DEBUG
       alert('Profile saved successfully!');
-      window.location.reload(); // Reload to switch to read-only mode
+      // Small delay to ensure Firestore commits before reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
+      console.error('Save error:', error); // DEBUG
       alert('Error saving profile: ' + error.message);
     } finally {
       saveBtn.textContent = originalText;
@@ -294,29 +341,29 @@ window.searchByTag = (tag) => {
 };
 
 function createProviderCard(id, data) {
-  const div = document.createElement('div');
-  div.className = 'provider-card';
+  const col = document.createElement('div');
+  col.className = 'col-md-4 col-sm-6';
+
   const imgUrl = data.profileImageURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
-  div.innerHTML = `
-        <div class="provider-header">
-            <img src="${imgUrl}" alt="${data.name}" class="provider-img">
-            <div class="provider-info">
-                <h3>${data.name}</h3>
-                <div class="badges">
-                    <span class="badge verified">Verified</span>
-                    <span class="badge">4.8 ★</span>
-                </div>
-            </div>
+  col.innerHTML = `
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center">
+        <img src="${imgUrl}" alt="${data.name}" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+        <h5 class="card-title fw-bold">${data.name}</h5>
+        <div class="mb-2">
+            <span class="badge bg-success">Verified</span>
+            <span class="badge bg-warning text-dark">4.8 ★</span>
         </div>
-        <div class="provider-stats">
-            <span>Rate: $${data.hourlyRate || 0}/hr</span>
-            <span>Jobs: 12</span>
+        <p class="card-text text-muted small">${data.services ? data.services.slice(0, 3).join(', ') : ''}</p>
+        <div class="d-flex justify-content-center gap-3 mb-3">
+            <small>Rate: $${data.hourlyRate || 0}/hr</small>
         </div>
-        <p>${data.services ? data.services.slice(0, 3).join(', ') : ''}</p>
-        <button class="book-btn" onclick="window.location.href='booking.html?providerId=${id}'">Book Now</button>
-    `;
-  return div;
+        <button class="btn btn-warning w-100" onclick="window.location.href='profile-view.html?id=${id}'">View Profile</button>
+      </div>
+    </div>
+  `;
+  return col;
 }
 
 // ... (existing code)
@@ -406,6 +453,16 @@ if (profileName && window.location.pathname.includes('profile-view.html')) { // 
         document.getElementById('dailyRate').textContent = data.dailyRate || 0;
         document.getElementById('portfolioText').textContent = data.portfolio || 'No portfolio items.';
 
+        // Address
+        if (data.address) {
+          const addressSection = document.getElementById('addressSection');
+          const addressText = document.getElementById('addressText');
+          if (addressSection && addressText) {
+            addressText.textContent = data.address;
+            addressSection.style.display = 'block';
+          }
+        }
+
         // Services
         const serviceList = document.getElementById('serviceList');
         if (data.services) {
@@ -416,40 +473,48 @@ if (profileName && window.location.pathname.includes('profile-view.html')) { // 
           });
         }
 
-        // Socials
-        // Socials
+        // Socials - Display as prominent buttons
         const socialLinks = document.getElementById('socialLinks');
         socialLinks.innerHTML = ''; // Clear previous
 
         if (data.whatsapp) {
           socialLinks.innerHTML += `
-                <a href="https://wa.me/${data.whatsapp}" target="_blank" title="WhatsApp">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-circle" style="color: #25D366;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                <a href="https://wa.me/${data.whatsapp}" target="_blank" class="social-btn social-btn-whatsapp">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                    WhatsApp
                 </a>`;
         }
-        if (data.gmail) {
+        if (data.gmail || data.email) {
+          const emailAddr = data.gmail || data.email;
           socialLinks.innerHTML += `
-                <a href="mailto:${data.gmail}" title="Email">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail" style="color: #EA4335;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                <a href="mailto:${emailAddr}" class="social-btn social-btn-email">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    Email
                 </a>`;
         }
         if (data.facebook) {
           socialLinks.innerHTML += `
-                <a href="${data.facebook}" target="_blank" title="Facebook">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-facebook" style="color: #1877F2;"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                </a>`;
-        }
-        if (data.twitter) {
-          socialLinks.innerHTML += `
-                <a href="${data.twitter}" target="_blank" title="Twitter/X">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-twitter" style="color: #1DA1F2;"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
+                <a href="${data.facebook}" target="_blank" title="Facebook" class="btn btn-outline-primary rounded-pill px-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    Facebook
                 </a>`;
         }
         if (data.github) {
           socialLinks.innerHTML += `
-                <a href="${data.github}" target="_blank" title="GitHub">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-github" style="color: #333;"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                <a href="${data.github}" target="_blank" title="GitHub" class="btn btn-outline-dark rounded-pill px-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                    GitHub
                 </a>`;
+        }
+
+        // If no contact info available
+        if (!data.whatsapp && !data.gmail && !data.email && !data.facebook && !data.github) {
+          socialLinks.innerHTML = '<p class="text-muted small text-center w-100">No contact information available</p>';
         }
 
         // Check role and adjust view
@@ -471,7 +536,126 @@ if (profileName && window.location.pathname.includes('profile-view.html')) { // 
           if (bookBtn) bookBtn.style.display = 'block';
           document.title = 'Provider Profile - RentBee';
         }
+        // Browse Page Logic
+        const providersList = document.getElementById('providersList');
+        if (providersList) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const initialCategory = urlParams.get('category');
 
+          // Set initial filter if present
+          if (initialCategory) {
+            const categoryFilter = document.getElementById('categoryFilter');
+            if (categoryFilter) categoryFilter.value = initialCategory;
+          }
+
+          loadProviders();
+
+          document.getElementById('applyFiltersBtn').addEventListener('click', loadProviders);
+        }
+
+        async function loadProviders() {
+          if (!providersList) return;
+
+          providersList.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-warning" role="status"></div></div>';
+
+          try {
+            const category = document.getElementById('categoryFilter').value;
+            const minRate = parseFloat(document.getElementById('minRate').value) || 0;
+            const maxRate = parseFloat(document.getElementById('maxRate').value) || 10000;
+
+            // Base query
+            let q = query(collection(db, "users"), where("type", "==", "provider"));
+
+            const querySnapshot = await getDocs(q);
+            const providers = [];
+
+            querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              let matches = true;
+
+              // Filter by Category (Service)
+              if (category) {
+                const hasService = data.services && data.services.some(s => s.toLowerCase().includes(category.toLowerCase()));
+                if (!hasService) matches = false;
+              }
+
+              // Filter by Rate
+              const rate = data.hourlyRate || 0;
+              if (rate < minRate || rate > maxRate) matches = false;
+
+              if (matches) {
+                providers.push({ id: doc.id, ...data });
+              }
+            });
+
+            renderProviders(providers);
+
+          } catch (error) {
+            console.error("Error loading providers:", error);
+            providersList.innerHTML = `<p class="text-danger text-center">Error loading providers: ${error.message}</p>`;
+          }
+        }
+
+        function renderProviders(providers) {
+          const countEl = document.getElementById('resultsCount');
+          if (countEl) countEl.textContent = `${providers.length} Providers Found`;
+
+          if (providers.length === 0) {
+            providersList.innerHTML = '';
+            document.getElementById('empty-message').classList.remove('hidden');
+            return;
+          }
+
+          document.getElementById('empty-message').classList.add('hidden');
+          providersList.innerHTML = providers.map(p => createUpworkStyleCard(p)).join('');
+        }
+
+        function createUpworkStyleCard(data) {
+          const imgUrl = data.profileImageURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+          const servicesHtml = data.services ? data.services.map(s => `<span class="skill-tag">${s}</span>`).join('') : '';
+
+          return `
+    <div class="card provider-card p-4">
+      <div class="row g-0">
+        <div class="col-md-9">
+          <div class="d-flex justify-content-between">
+            <h5 class="fw-bold mb-1 text-primary" style="cursor:pointer;" onclick="window.location.href='profile-view.html?id=${data.id}'">${data.name}</h5>
+          </div>
+          <div class="mb-2">
+            <span class="fw-bold text-dark">${data.services ? data.services[0] : 'Service Provider'}</span>
+          </div>
+          <div class="mb-3">
+             <span class="verified-badge">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-primary"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+               Payment verified
+             </span>
+             <span class="text-muted ms-3">
+               <span class="text-warning">★★★★★</span> 5.0
+             </span>
+             <span class="text-muted ms-3">
+               📍 ${data.division || 'Dhaka, Bangladesh'}
+             </span>
+          </div>
+          
+          <p class="text-muted mb-3" style="font-size: 0.95rem; line-height: 1.6;">
+            ${data.portfolio || 'Experienced professional ready to help with your tasks. Click to view full profile and portfolio.'}
+          </p>
+          
+          <div class="d-flex flex-wrap">
+            ${servicesHtml}
+          </div>
+        </div>
+        
+        <div class="col-md-3 border-start ps-md-4 d-flex flex-column justify-content-center align-items-center mt-3 mt-md-0">
+          <img src="${imgUrl}" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;">
+          <h4 class="fw-bold mb-1">$${data.hourlyRate || 0}</h4>
+          <span class="text-muted small mb-3">per hour</span>
+          <button class="btn btn-warning fw-bold w-100 rounded-pill" onclick="window.location.href='profile-view.html?id=${data.id}'">View Profile</button>
+        </div>
+      </div>
+    </div>
+  `;
+        }
         // Book Button Logic (Only if provider)
         if (isProvider) {
           document.getElementById('bookNowBtn').onclick = () => {
@@ -497,3 +681,6 @@ if (profileName && window.location.pathname.includes('profile-view.html')) { // 
     });
   }
 }
+// ... (existing code)
+
+// SOS Button Logic moved to sos.js
