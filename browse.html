@@ -1,121 +1,137 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Browse Providers - RentBee</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { padding-top: 70px; }
-    .provider-card { transition: transform 0.25s ease, border 0.25s ease; border: 2px solid transparent; }
-    .provider-card:hover { border: 2px solid #fdd835; }
-    .hidden { display: none !important; }
+    body {
+      padding-top: 80px;
+      background-color: #f9f9f9;
+    }
+
+    .provider-card {
+      transition: all 0.2s ease;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .provider-card:hover {
+      border-color: #ffd700;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .verified-badge {
+      color: #1f57c3;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .skill-tag {
+      background-color: #f2f2f2;
+      color: #5e6d55;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: inline-block;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    .skill-tag:hover {
+      background-color: #e4e4e4;
+    }
+
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
+
 <body>
 
-<!-- Navbar (optional, copy from homepage for consistency) -->
-<nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
-  <div class="container-fluid px-4">
-    <a class="navbar-brand fw-bold text-warning" href="#"><span class="me-1">🐝</span>RentBee</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">How It Works</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Login</a></li>
-        <li class="nav-item">
-          <a class="btn btn-warning rounded-pill" href="#">Become a Service Provider</a>
-        </li>
-      </ul>
+  <!-- Navbar (optional, copy from homepage for consistency) -->
+  <nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold text-warning" href="#"><span class="me-1">🐝</span>RentBee</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">How It Works</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Login</a></li>
+          <li class="nav-item">
+            <a class="btn btn-warning rounded-pill" href="#">Become a Service Provider</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Heading -->
+  <div class="row">
+    <!-- Sidebar Filters -->
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm p-3 mb-4">
+        <h5 class="fw-bold mb-3">Filter By</h5>
+
+        <div class="mb-4">
+          <label class="fw-bold mb-2">Category</label>
+          <select id="categoryFilter" class="form-select">
+            <option value="">All Categories</option>
+            <option value="Chef">Chef</option>
+            <option value="Tutor">Tutor</option>
+            <option value="Nanny">Nanny</option>
+            <option value="Cleaner">Cleaner</option>
+            <option value="Web Developer">Web Developer</option>
+            <option value="Designer">Designer</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="fw-bold mb-2">Hourly Rate</label>
+          <div class="d-flex gap-2 align-items-center">
+            <input type="number" id="minRate" class="form-control" placeholder="Min">
+            <span>-</span>
+            <input type="number" id="maxRate" class="form-control" placeholder="Max">
+          </div>
+        </div>
+
+        <button id="applyFiltersBtn" class="btn btn-warning w-100 fw-bold">Apply Filters</button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 id="resultsCount" class="fw-bold m-0">Loading providers...</h4>
+        <select class="form-select w-auto">
+          <option>Sort by: Newest</option>
+          <option>Sort by: Rating</option>
+          <option>Sort by: Price: Low to High</option>
+        </select>
+      </div>
+
+      <!-- Providers List -->
+      <div id="providersList" class="d-flex flex-column gap-3">
+        <!-- Dynamic content will be injected here -->
+      </div>
+
+      <p id="empty-message" class="text-center text-muted mt-5 hidden">No providers found matching your criteria.</p>
     </div>
   </div>
-</nav>
 
-<!-- Page Heading -->
-<div class="container py-5">
-  <h2 id="page-heading" class="fw-bold text-center mb-4">All Providers</h2>
+  <script type="module" src="app.js"></script>
 
-  <!-- Providers Grid -->
-  <div id="providers" class="row g-4">
-
-    <!-- Chef -->
-    <div class="col-md-4" data-category="Chef">
-      <div class="card provider-card p-3 h-100">
-        <h5 class="fw-bold">Rafi — Private Chef</h5>
-        <p>Cooking & meal prep — Rate: 400 BDT/hr</p>
-      </div>
-    </div>
-    <div class="col-md-4" data-category="Chef">
-      <div class="card provider-card p-3 h-100">
-        <h5 class="fw-bold">Sadia — Pastry Chef</h5>
-        <p>Cakes & desserts — Rate: 350 BDT/hr</p>
-      </div>
-    </div>
-
-    <!-- Tutor -->
-    <div class="col-md-4" data-category="Tutor">
-      <div class="card provider-card p-3 h-100">
-        <h5 class="fw-bold">Alif — Math Tutor</h5>
-        <p>High school Math — Rate: 300 BDT/hr</p>
-      </div>
-    </div>
-    <div class="col-md-4" data-category="Tutor">
-      <div class="card provider-card p-3 h-100">
-        <h5 class="fw-bold">Rina — English Tutor</h5>
-        <p>Language & grammar — Rate: 280 BDT/hr</p>
-      </div>
-    </div>
-
-    <!-- Nanny -->
-    <div class="col-md-4" data-category="Nanny">
-      <div class="card provider-card p-3 h-100">
-        <h5 class="fw-bold">Maya — Babysitter</h5>
-        <p>Full day care — Rate: 500 BDT/hr</p>
-      </div>
-    </div>
-
-    <!-- Cleaner -->
-    <div class="col-md-4" data-category="Cleaner">
-      <div class="card provider-card p-3 h-100">
-        <h5 class="fw-bold">Karim — Home Cleaner</h5>
-        <p>House cleaning — Rate: 300 BDT/hr</p>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Empty category message -->
-  <p id="empty-message" class="text-center text-muted mt-4 hidden">No providers found in this category yet. Be the first to sign up!</p>
-</div>
-
-<script>
-  // Read category from URL
-  const params = new URLSearchParams(window.location.search);
-  const category = params.get('category');
-
-  if (category) {
-    document.getElementById('page-heading').textContent = category + "s near you";
-    const cards = document.querySelectorAll('#providers [data-category]');
-    let hasVisible = false;
-    cards.forEach(c => {
-      if (c.getAttribute('data-category') !== category) {
-        c.classList.add('hidden');
-      } else {
-        c.classList.remove('hidden');
-        hasVisible = true;
-      }
-    });
-
-    // Show friendly message if no cards
-    if (!hasVisible) {
-      document.getElementById('empty-message').classList.remove('hidden');
-    }
-  }
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard - RentBee</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="design-system.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 80px;
+        }
+
+        .nav-pills .nav-link {
+            color: var(--text-main);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-pills .nav-link:hover {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .nav-pills .nav-link.active {
+            background: var(--gradient-primary) !important;
+            color: white !important;
+            box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-warning" href="index.html">🐝RentBee</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="client-dashboard.html">Dashboard</a></li>
+                    <li class="nav-item dropdown" id="navProfileItem">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                            data-bs-toggle="dropdown">
+                            <img id="navProfileImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                                class="rounded-circle border" width="32" height="32" alt="Profile">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item" href="profile.html">Edit Profile</a></li>
+                            <li><a class="dropdown-item" href="profile-view.html">View Public Profile</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" id="navLogoutItem">
+                        <button id="navLogoutBtn" class="btn btn-outline-danger rounded-pill ms-2">Logout</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header-custom">
+        <div class="container">
+            <h1 class="display-5 fw-bold mb-2">Welcome, <span id="userName" class="text-primary">Client</span>! 👋</h1>
+            <p class="lead text-muted">Manage your job postings and find the best providers.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="d-flex justify-content-center">
+                        <div class="stat-icon icon-hover">📢</div>
+                    </div>
+                    <h3 id="totalJobs">0</h3>
+                    <p>Total Jobs Posted</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="d-flex justify-content-center">
+                        <div class="stat-icon icon-hover">⚡</div>
+                    </div>
+                    <h3 id="activeJobs">0</h3>
+                    <p>Active Jobs</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="d-flex justify-content-center">
+                        <div class="stat-icon icon-hover">👥</div>
+                    </div>
+                    <h3 id="totalApplicants">0</h3>
+                    <p>Total Applicants</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="d-flex justify-content-center">
+                        <div class="stat-icon icon-hover">🤝</div>
+                    </div>
+                    <h3 id="hiredProviders">0</h3>
+                    <p>Hired Providers</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-pills mb-4" id="dashboardTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="search-tab" data-bs-toggle="pill" data-bs-target="#search"
+                    type="button">
+                    🔍 Search Providers
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="notifications-tab" data-bs-toggle="pill" data-bs-target="#notifications"
+                    type="button">
+                    🔔 Notifications <span id="notificationsBadge" class="badge bg-danger ms-1"
+                        style="display:none;">0</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="jobs-tab" data-bs-toggle="pill" data-bs-target="#jobs" type="button">
+                    📋 My Jobs
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="post-tab" data-bs-toggle="pill" data-bs-target="#post" type="button">
+                    ➕ Post New Job
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="dashboardTabContent">
+            <!-- Search Providers Tab -->
+            <div class="tab-pane fade show active" id="search" role="tabpanel">
+                <div class="card-custom p-4 mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-9">
+                            <div class="position-relative">
+                                <span
+                                    class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">🔍</span>
+                                <input type="text" id="searchInput" class="form-control form-control-custom ps-5"
+                                    placeholder="Search for providers by skill (e.g., Web Developer, Chef)">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary-custom w-100" id="searchBtn">Search</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="searchResults">
+                    <div class="empty-state-styled">
+                        <div class="empty-state-icon-wrapper">
+                            🔍
+                        </div>
+                        <h4 class="empty-state-title">Search for Service Providers</h4>
+                        <p class="empty-state-text">Enter a skill or service above (e.g. "Plumber", "Web Developer") to
+                            find qualified professionals.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div class="tab-pane fade" id="notifications" role="tabpanel">
+                <div id="notificationsList">
+                    <div class="empty-state-styled">
+                        <div class="empty-state-icon-wrapper">🔔</div>
+                        <h4 class="empty-state-title">No Notifications</h4>
+                        <p class="empty-state-text">Updates about your bookings and job applications will appear here
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Jobs Tab -->
+            <div class="tab-pane fade" id="jobs" role="tabpanel">
+                <div id="myJobsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h4>No Jobs Posted Yet</h4>
+                        <p>Click "Post New Job" to create your first job posting</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post New Job Tab -->
+            <div class="tab-pane fade" id="post" role="tabpanel">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <h3 class="mb-4">Post a New Job</h3>
+                                <form id="postJobForm">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Job Title *</label>
+                                        <input type="text" class="form-control" id="jobTitle" required
+                                            placeholder="e.g., Need a Web Developer for E-commerce Site">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Category *</label>
+                                        <select class="form-select" id="jobCategory" required>
+                                            <option value="">Select a category</option>
+                                            <option value="Web Developer">Web Developer</option>
+                                            <option value="Designer">Designer</option>
+                                            <option value="Chef">Chef</option>
+                                            <option value="Tutor">Tutor</option>
+                                            <option value="Cleaner">Cleaner</option>
+                                            <option value="Nanny">Nanny</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Description *</label>
+                                        <textarea class="form-control" id="jobDescription" rows="4" required
+                                            placeholder="Describe the job requirements, expectations, and any other relevant details..."></textarea>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Hourly Rate (BDT)</label>
+                                            <input type="number" class="form-control" id="hourlyRate" min="0"
+                                                step="0.01" placeholder="e.g., 500">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Total Rate (BDT)</label>
+                                            <input type="number" class="form-control" id="totalRate" min="0" step="0.01"
+                                                placeholder="e.g., 10000">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Location/Division</label>
+                                        <input type="text" class="form-control" id="jobLocation"
+                                            placeholder="e.g., Dhaka">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold">Duration</label>
+                                        <input type="text" class="form-control" id="jobDuration"
+                                            placeholder="e.g., 2 weeks, 1 month, Ongoing">
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold">Required Skills (comma separated)</label>
+                                        <input type="text" class="form-control" id="requiredSkills"
+                                            placeholder="e.g., React, Node.js, MongoDB">
+                                    </div>
+
+
+                                    <button type="submit" class="btn btn-primary-gradient w-100" style="
+                                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                        border: none;
+                                        padding: 14px 28px;
+                                        font-size: 16px;
+                                        font-weight: 600;
+                                        border-radius: 8px;
+                                        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                                        transition: all 0.3s ease;
+                                        text-transform: uppercase;
+                                        letter-spacing: 0.5px;
+                                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.6)';"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.4)';">
+                                        📝 Post Job
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="app.js"></script>
+    <script type="module" src="sos.js"></script>
+    <script type="module" src="complaint.js"></script>
+    <script type="module">
+        import { auth, db } from './firebase.js';
+        import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import {
+            collection, addDoc, query, where, getDocs, getDoc, doc, updateDoc, deleteDoc, orderBy, onSnapshot
+        } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+        // Check authentication and role
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Check if user is a receiver
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const userRole = userData.role || userData.type;
+
+                if (userRole === 'provider' || userRole === 'producer') {
+                    // Redirect providers to their dashboard
+                    window.location.href = 'provider-dashboard.html';
+                    return;
+                }
+
+                // Load user name
+                document.getElementById('userName').textContent = userData.name || 'Client';
+
+                // Load profile image
+                const navImg = document.getElementById('navProfileImg');
+                if (userData.profileImageURL) {
+                    navImg.src = userData.profileImageURL;
+                }
+            }
+
+            // Load dashboard data
+            loadStats();
+            loadMyJobs();
+            loadNotifications();
+        });
+
+        // Logout
+        document.getElementById('navLogoutBtn').onclick = () => {
+            signOut(auth).then(() => window.location.href = 'index.html');
+        };
+
+        // Post Job Form
+        document.getElementById('postJobForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            const userName = userDoc.exists() ? userDoc.data().name : 'Anonymous';
+
+            const jobData = {
+                title: document.getElementById('jobTitle').value.trim(),
+                category: document.getElementById('jobCategory').value,
+                description: document.getElementById('jobDescription').value.trim(),
+                hourlyRate: parseFloat(document.getElementById('hourlyRate').value) || 0,
+                totalRate: parseFloat(document.getElementById('totalRate').value) || 0,
+                location: document.getElementById('jobLocation').value.trim() || 'Not specified',
+                duration: document.getElementById('jobDuration').value.trim() || 'Not specified',
+                requiredSkills: document.getElementById('requiredSkills').value.split(',').map(s => s.trim()).filter(s => s),
+                status: 'open',
+                postedBy: user.uid,
+                postedByName: userName,
+                applicants: [],
+                hiredProvider: null,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+
+            try {
+                await addDoc(collection(db, 'jobs'), jobData);
+                alert('Job posted successfully!');
+                document.getElementById('postJobForm').reset();
+
+                // Switch to My Jobs tab
+                const jobsTab = new bootstrap.Tab(document.getElementById('jobs-tab'));
+                jobsTab.show();
+
+                loadMyJobs();
+                loadStats();
+            } catch (error) {
+                console.error('Error posting job:', error);
+                alert('Failed to post job: ' + error.message);
+            }
+        });
+
+        // Search Providers
+        document.getElementById('searchBtn').addEventListener('click', async () => {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (!searchQuery) {
+                alert('Please enter a search term');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                const q = query(collection(db, 'users'), where('type', '==', 'provider'));
+                const querySnapshot = await getDocs(q);
+
+                let results = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.services && data.services.some(s => s.toLowerCase().includes(searchQuery))) {
+                        results.push({ id: doc.id, ...data });
+                    }
+                });
+
+                if (results.length === 0) {
+                    resultsDiv.innerHTML = `
+            <div class="empty-state text-center py-5">
+              <div class="fs-1 mb-3">😕</div>
+              <h4>No Providers Found</h4>
+              <p class="text-muted">Try searching with different keywords</p>
+            </div>
+          `;
+                } else {
+                    resultsDiv.innerHTML = `
+                    <div class="row g-4">
+                        ${results.map(provider => `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="provider-card-custom">
+                                <div class="provider-img-wrapper">
+                                    <img src="${provider.profileImageURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" alt="${provider.name}">
+                                </div>
+                                <h5 class="fw-bold mb-1">${provider.name}</h5>
+                                <p class="text-muted small mb-3">${provider.services ? provider.services.slice(0, 3).join(', ') : 'Service Provider'}</p>
+                                
+                                <div class="d-flex gap-2 justify-content-center mb-3">
+                                    <span class="badge-custom badge-success">Verified</span>
+                                    <span class="badge-custom badge-warning">⭐ 4.8</span>
+                                </div>
+                                
+                                <div class="mb-4 fw-bold text-primary">
+                                    $${provider.hourlyRate || 0}/hr
+                                </div>
+                                
+                                <button class="btn btn-primary-custom w-100 mt-auto" onclick="window.location.href='profile-view.html?id=${provider.id}'">
+                                    View Profile
+                                </button>
+                            </div>
+                        </div>
+                        `).join('')}
+                    </div>`;
+                }
+            } catch (error) {
+                console.error('Error searching:', error);
+                resultsDiv.innerHTML = '<p class="text-danger text-center">Error loading results</p>';
+            }
+        });
+
+        // Load My Jobs
+        async function loadMyJobs() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const jobsList = document.getElementById('myJobsList');
+            jobsList.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                // Removed orderBy to avoid composite index requirement
+                const q = query(collection(db, 'jobs'), where('postedBy', '==', user.uid));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    jobsList.innerHTML = `
+            <div class="empty-state-styled">
+              <div class="empty-state-icon-wrapper">📋</div>
+              <h4 class="empty-state-title">No Jobs Posted Yet</h4>
+              <p class="empty-state-text">Click "Post New Job" to create your first job posting</p>
+            </div>
+          `;
+                    return;
+                }
+
+                // Collect jobs and sort client-side
+                let jobs = [];
+                querySnapshot.forEach((doc) => {
+                    jobs.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Client-side sort by createdAt descending
+                jobs.sort((a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.seconds : 0;
+                    const dateB = b.createdAt ? b.createdAt.seconds : 0;
+                    return dateB - dateA;
+                });
+
+                let jobsHtml = '';
+                jobs.forEach((job) => {
+                    const statusColor = job.status === 'open' ? 'success' : job.status === 'in-progress' ? 'warning' : 'secondary';
+
+                    jobsHtml += `
+            <div class="card-custom p-4 mb-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h5 class="fw-bold mb-2">${job.title}</h5>
+                  <div class="text-muted small mb-3">
+                    <span class="me-3">📁 ${job.category}</span>
+                    <span class="me-3">💰 $${job.budgetAmount} (${job.budgetType})</span>
+                    <span class="me-3">📍 ${job.location}</span>
+                    <span>⏱️ ${job.duration}</span>
+                  </div>
+                  <p class="mb-3 text-secondary">${job.description.substring(0, 150)}${job.description.length > 150 ? '...' : ''}</p>
+                  ${job.requiredSkills && job.requiredSkills.length > 0 ? `
+                    <div class="mb-3">
+                      ${job.requiredSkills.map(skill => `<span class="badge-custom badge-primary me-1">${skill}</span>`).join('')}
+                    </div>
+                  ` : ''}
+                  <small class="text-muted">Posted ${new Date(job.createdAt.seconds * 1000).toLocaleDateString()}</small>
+                </div>
+                <div class="ms-3 text-end">
+                  <span class="badge-custom badge-${statusColor} mb-2 d-inline-block">${job.status.toUpperCase()}</span>
+                  <div class="text-muted small mb-3">
+                    ${job.applicants ? job.applicants.length : 0} applicants
+                  </div>
+                  <div class="d-flex gap-2 justify-content-end">
+                    <button class="btn btn-sm btn-outline-custom" onclick="viewJobDetails('${job.id}')">View Details</button>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill" onclick="deleteJob('${job.id}')">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+                });
+
+                jobsList.innerHTML = jobsHtml;
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                jobsList.innerHTML = '<p class="text-danger text-center">Error loading jobs</p>';
+            }
+        }
+
+        // Load Stats
+        async function loadStats() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            try {
+                const q = query(collection(db, 'jobs'), where('postedBy', '==', user.uid));
+                const querySnapshot = await getDocs(q);
+
+                let totalJobs = 0;
+                let activeJobs = 0;
+                let totalApplicants = 0;
+                let hiredProviders = 0;
+
+                querySnapshot.forEach((doc) => {
+                    const job = doc.data();
+                    totalJobs++;
+                    if (job.status === 'open') activeJobs++;
+                    if (job.applicants) totalApplicants += job.applicants.length;
+                    if (job.hiredProvider) hiredProviders++;
+                });
+
+                document.getElementById('totalJobs').textContent = totalJobs;
+                document.getElementById('activeJobs').textContent = activeJobs;
+                document.getElementById('totalApplicants').textContent = totalApplicants;
+                document.getElementById('hiredProviders').textContent = hiredProviders;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Delete Job
+        window.deleteJob = async (jobId) => {
+            if (!confirm('Are you sure you want to delete this job?')) return;
+
+            try {
+                await deleteDoc(doc(db, 'jobs', jobId));
+                alert('Job deleted successfully');
+                loadMyJobs();
+                loadStats();
+            } catch (error) {
+                console.error('Error deleting job:', error);
+                alert('Failed to delete job');
+            }
+        };
+
+        // View Job Details (placeholder)
+        window.viewJobDetails = (jobId) => {
+            window.location.href = `job-details.html?id=${jobId}`;
+        };
+
+        // Load Notifications
+        function loadNotifications() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const notificationsList = document.getElementById('notificationsList');
+            // Initial spinner only if empty
+            if (!notificationsList.innerHTML.trim()) {
+                notificationsList.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+            }
+
+            const q = query(collection(db, 'notifications'), where('recipientId', '==', user.uid));
+
+            // Real-time listener
+            onSnapshot(q, (querySnapshot) => {
+                if (querySnapshot.empty) {
+                    notificationsList.innerHTML = `
+                        <div class="empty-state-styled">
+                            <div class="empty-state-icon-wrapper">🔔</div>
+                            <h4 class="empty-state-title">No Notifications</h4>
+                            <p class="empty-state-text">Updates about your bookings and job applications will appear here</p>
+                        </div>
+                    `;
+                    document.getElementById('notificationsBadge').style.display = 'none';
+                    return;
+                }
+
+                // Collect and sort notifications
+                let notifications = [];
+                querySnapshot.forEach((doc) => {
+                    notifications.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sort by createdAt descending
+                notifications.sort((a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.seconds : 0;
+                    const dateB = b.createdAt ? b.createdAt.seconds : 0;
+                    return dateB - dateA;
+                });
+
+                // Count unread notifications
+                const unreadCount = notifications.filter(n => !n.read).length;
+                const badge = document.getElementById('notificationsBadge');
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                let notificationsHtml = '';
+                notifications.forEach((notif) => {
+                    const isAccepted = notif.type.includes('accepted');
+                    const isDeclined = notif.type.includes('declined');
+                    const iconColor = isAccepted ? 'text-success' : isDeclined ? 'text-danger' : 'text-primary';
+                    const icon = isAccepted ? '✅' : isDeclined ? '❌' : '📬';
+                    const bgClass = notif.read ? '' : 'bg-light';
+                    const createdDate = notif.createdAt ? new Date(notif.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
+
+                    notificationsHtml += `
+                        <div class="card-custom p-4 mb-3 ${bgClass}">
+                            <div class="d-flex align-items-start">
+                                <span class="fs-3 me-3 ${iconColor}">${icon}</span>
+                                <div class="flex-grow-1">
+                                    <h5 class="fw-bold mb-1">${notif.title || 'Notification'}</h5>
+                                    <p class="mb-2">${notif.message}</p>
+                                    <small class="text-muted">${createdDate}</small>
+                                </div>
+                                ${!notif.read ? `
+                                    <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="markAsRead('${notif.id}')">
+                                        Mark as read
+                                    </button>
+                                ` : '<span class="badge-custom badge-success">Read</span>'}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                notificationsList.innerHTML = notificationsHtml;
+            }, (error) => {
+                console.error('Error loading notifications:', error);
+                notificationsList.innerHTML = '<p class="text-danger text-center">Error loading notifications</p>';
+            });
+        }
+
+        // Mark notification as read
+        window.markAsRead = async (notificationId) => {
+            try {
+                await updateDoc(doc(db, 'notifications', notificationId), { read: true });
+                loadNotifications();
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        };
+    </script>
+</body>
+
+</html>
