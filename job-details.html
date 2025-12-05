@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Details - RentBee</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="design-system.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 80px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-warning" href="index.html">🐝RentBee</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="client-dashboard.html">Dashboard</a></li>
+                    <li class="nav-item" id="navLogoutItem">
+                        <button id="navLogoutBtn" class="btn btn-outline-danger rounded-pill ms-2">Logout</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Back Link -->
+                <a href="client-dashboard.html"
+                    class="text-decoration-none text-muted mb-4 d-inline-block hover-primary">
+                    ← Back to Dashboard
+                </a>
+
+                <div class="row g-4">
+                    <!-- Job Details Box -->
+                    <div class="col-lg-8">
+                        <div class="job-box">
+                            <div class="job-box-header d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span id="jobCategory" class="badge-custom badge-primary mb-2">Loading...</span>
+                                    <h2 id="jobTitle" class="mb-2">Loading Job...</h2>
+                                    <div class="text-muted small">
+                                        Posted <span id="jobPosted">...</span> • <span id="jobLocation">...</span>
+                                    </div>
+                                </div>
+                                <span id="jobStatus" class="badge-custom badge-success">OPEN</span>
+                            </div>
+
+                            <div class="job-box-body">
+                                <div class="row mb-4">
+                                    <div class="col-6">
+                                        <label class="text-muted small text-uppercase fw-bold">Budget</label>
+                                        <div class="fs-5 fw-bold text-primary" id="jobBudget">...</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="text-muted small text-uppercase fw-bold">Duration</label>
+                                        <div class="fs-5 fw-bold" id="jobDuration">...</div>
+                                    </div>
+                                </div>
+
+                                <h5 class="mb-3">Description</h5>
+                                <p id="jobDescription" class="text-muted mb-4" style="line-height: 1.8;">...</p>
+
+                                <h5 class="mb-3">Required Skills</h5>
+                                <div id="jobSkills" class="d-flex flex-wrap gap-2"></div>
+                            </div>
+
+                            <!-- Actions Footer -->
+                            <div id="jobActions" class="p-4 bg-light border-top" style="display: none;">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-custom" id="editJobBtn">Edit Job</button>
+                                    <button class="btn btn-outline-danger" id="deleteJobBtn">Delete Job</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="col-lg-4">
+                        <div class="card-custom p-4">
+                            <h4 class="mb-4">Applicants <span id="applicantCount"
+                                    class="badge bg-light text-dark ms-2">0</span></h4>
+                            <div id="applicantsList" class="d-flex flex-column gap-3">
+                                <div class="text-center py-4 text-muted">
+                                    <div class="fs-1 mb-2">👥</div>
+                                    <p>No applicants yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="sos.js"></script>
+    <script type="module" src="complaint.js"></script>
+    <script type="module">
+        import { auth, db } from './firebase.js';
+        import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import {
+            doc, getDoc, updateDoc, deleteDoc, collection, query, where, getDocs, addDoc
+        } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const jobId = urlParams.get('id');
+
+        if (!jobId) {
+            alert('No job ID provided');
+            window.location.href = 'client-dashboard.html';
+        }
+
+        let currentUser = null;
+        let currentJobData = null;
+
+        // Check authentication
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUser = user;
+            loadJobDetails();
+        });
+
+        // Logout
+        document.getElementById('navLogoutBtn').onclick = () => {
+            signOut(auth).then(() => window.location.href = 'index.html');
+        };
+
+        // Load Job Details
+        async function loadJobDetails() {
+            try {
+                const jobDoc = await getDoc(doc(db, 'jobs', jobId));
+
+                if (!jobDoc.exists()) {
+                    alert('Job not found');
+                    window.location.href = 'client-dashboard.html';
+                    return;
+                }
+
+                const job = jobDoc.data();
+                currentJobData = job;
+
+                // Populate job details
+                document.getElementById('jobTitle').textContent = job.title;
+                document.getElementById('jobCategory').textContent = job.category;
+                document.getElementById('jobBudget').textContent = `$${job.budgetAmount} (${job.budgetType})`;
+                document.getElementById('jobLocation').textContent = job.location;
+                document.getElementById('jobDuration').textContent = job.duration;
+                document.getElementById('jobDescription').textContent = job.description;
+                document.getElementById('jobPosted').textContent = new Date(job.createdAt.seconds * 1000).toLocaleDateString();
+
+                // Status badge
+                const statusBadge = document.getElementById('jobStatus');
+                const statusColor = job.status === 'open' ? 'success' : job.status === 'in-progress' ? 'warning' : 'secondary';
+                statusBadge.className = `badge-custom badge-${statusColor}`;
+                statusBadge.textContent = job.status.toUpperCase();
+
+                // Skills
+                if (job.requiredSkills && job.requiredSkills.length > 0) {
+                    document.getElementById('jobSkills').innerHTML = job.requiredSkills
+                        .map(skill => `<span class="badge-custom badge-primary me-2 mb-2">${skill}</span>`)
+                        .join('');
+                }
+
+                // Show actions if user is the job owner
+                if (job.postedBy === currentUser.uid) {
+                    document.getElementById('jobActions').style.display = 'block';
+                    loadApplications();
+                }
+            } catch (error) {
+                console.error('Error loading job:', error);
+                alert('Error loading job details');
+            }
+        }
+
+        // Load Applications (from applications collection)
+        async function loadApplications() {
+            const applicantsList = document.getElementById('applicantsList');
+            applicantsList.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div></div>';
+
+            try {
+                const q = query(collection(db, 'applications'), where('jobId', '==', jobId));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    document.getElementById('applicantCount').textContent = '0';
+                    applicantsList.innerHTML = `
+                        <div class="text-center py-4 text-muted">
+                            <div class="fs-1 mb-2">👥</div>
+                            <p>No applicants yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                document.getElementById('applicantCount').textContent = querySnapshot.size;
+                applicantsList.innerHTML = '';
+
+                for (const appDoc of querySnapshot.docs) {
+                    const application = appDoc.data();
+                    const applicationId = appDoc.id;
+
+                    try {
+                        const userDoc = await getDoc(doc(db, 'users', application.providerId));
+                        const userData = userDoc.exists() ? userDoc.data() : {};
+
+                        const statusColor = application.status === 'pending' ? 'warning' :
+                            application.status === 'accepted' ? 'success' : 'danger';
+                        const statusText = application.status.charAt(0).toUpperCase() + application.status.slice(1);
+
+                        const applicantCard = document.createElement('div');
+                        applicantCard.className = 'card-custom p-3 mb-2';
+                        applicantCard.innerHTML = `
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="${userData.profileImageURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" 
+                                     class="rounded-circle me-3" width="50" height="50" style="object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 fw-bold">${userData.name || application.providerName}</h6>
+                                    <small class="text-muted">${userData.services ? userData.services.slice(0, 2).join(', ') : 'Provider'}</small>
+                                </div>
+                                <span class="badge-custom badge-${statusColor}">${statusText}</span>
+                            </div>
+                            <div class="d-flex gap-2 mt-2">
+                                <button class="btn btn-sm btn-outline-custom flex-grow-1" onclick="window.location.href='profile-view.html?id=${application.providerId}'">
+                                    View Profile
+                                </button>
+                                ${application.status === 'pending' ? `
+                                    <button class="btn btn-sm btn-success" onclick="handleApplication('${applicationId}', '${application.providerId}', 'accepted')">
+                                        ✓ Accept
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="handleApplication('${applicationId}', '${application.providerId}', 'declined')">
+                                        ✗ Decline
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `;
+                        applicantsList.appendChild(applicantCard);
+                    } catch (error) {
+                        console.error('Error loading applicant:', error);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                applicantsList.innerHTML = '<p class="text-danger text-center">Error loading applicants</p>';
+            }
+        }
+
+        // Handle Application (Accept/Decline)
+        window.handleApplication = async (applicationId, providerId, status) => {
+            const confirmMsg = status === 'accepted'
+                ? 'Are you sure you want to accept this provider? They will be notified and you can start working together.'
+                : 'Are you sure you want to decline this application?';
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                // Update application status
+                await updateDoc(doc(db, 'applications', applicationId), {
+                    status: status,
+                    respondedAt: new Date()
+                });
+
+                // If accepted, update job status and hired provider
+                if (status === 'accepted') {
+                    await updateDoc(doc(db, 'jobs', jobId), {
+                        hiredProvider: providerId,
+                        status: 'in-progress'
+                    });
+                }
+
+                // Create notification for provider
+                const notificationType = status === 'accepted' ? 'application_accepted' : 'application_declined';
+                const notificationTitle = status === 'accepted' ? 'Congratulations! Application Accepted 🎉' : 'Application Update';
+                const notificationMessage = status === 'accepted'
+                    ? `Congratulations! Your application for "${currentJobData.title}" has been accepted. You can now start working together with the client.`
+                    : `Thank you for your interest in "${currentJobData.title}". Unfortunately, the client has decided to proceed with another provider this time. We wish you the best of luck with future opportunities.`;
+
+                await addDoc(collection(db, 'notifications'), {
+                    recipientId: providerId,
+                    type: notificationType,
+                    title: notificationTitle,
+                    message: notificationMessage,
+                    relatedId: applicationId,
+                    relatedType: 'application',
+                    jobId: jobId,
+                    senderId: currentUser.uid,
+                    read: false,
+                    createdAt: new Date()
+                });
+
+                alert(status === 'accepted'
+                    ? 'Provider accepted! They will be notified and you can start working together.'
+                    : 'Application declined. The provider will be notified.');
+
+                loadJobDetails();
+            } catch (error) {
+                console.error('Error handling application:', error);
+                alert('Failed to process: ' + error.message);
+            }
+        };
+
+        // Delete Job
+        document.getElementById('deleteJobBtn').onclick = async () => {
+            if (!confirm('Are you sure you want to delete this job?')) return;
+
+            try {
+                await deleteDoc(doc(db, 'jobs', jobId));
+                alert('Job deleted successfully');
+                window.location.href = 'client-dashboard.html';
+            } catch (error) {
+                console.error('Error deleting job:', error);
+                alert('Failed to delete job');
+            }
+        };
+
+        // Edit Job (placeholder)
+        document.getElementById('editJobBtn').onclick = () => {
+            alert('Edit functionality coming soon!');
+        };
+    </script>
+</body>
+
+</html>
