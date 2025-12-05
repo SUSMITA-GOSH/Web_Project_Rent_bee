@@ -4,86 +4,119 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Profile Setup with Image & Payment</title>
+  <title>Profile Setup - RentBee</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background-color: #f8f9fa;
+      padding-top: 80px;
+    }
+
+    .profile-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
 
 <body>
-  <nav class="navbar">
-    <div class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">RentBee</a></div>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="profile.html">My Profile</a>
+  <nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold text-warning" href="index.html">🐝RentBee</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="profile.html">My Profile</a></li>
+          <li class="nav-item"><button id="navLogoutBtn"
+              class="btn btn-outline-danger rounded-pill ms-2">Logout</button></li>
+        </ul>
+      </div>
     </div>
   </nav>
 
-  <h2>Your Profile Setup</h2>
-  <form id="profileForm" enctype="multipart/form-data">
-    <label>Name:
-      <input type="text" id="name" required />
-    </label>
+  <div class="container profile-container">
 
-    <label>Account Type:
-      <select id="accountType" required>
-        <option value="">Select type</option>
-        <option value="provider">Provider</option>
-        <option value="receiver">Receiver</option>
-      </select>
-    </label>
-
-   
-    <div id="commonFields">
-      <label>Profile Image:
-        <input type="file" id="profileImage" accept="image/*" />
-        <img id="imagePreview" src="" alt="Image Preview"
-          style="display:none; width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-top: 10px;" />
+    <h2>Your Profile Setup</h2>
+    <form id="profileForm" enctype="multipart/form-data">
+      <label>Name:
+        <input type="text" id="name" required />
       </label>
 
-      <label>Bio / About Me / Projects:
-        <textarea id="portfolio" rows="4"
-          placeholder="Describe yourself, your projects, or what you are looking for..."></textarea>
+      <label>Account Type:
+        <select id="accountType">
+          <option value="">Select type</option>
+          <option value="provider">Provider</option>
+          <option value="receiver">Receiver</option>
+        </select>
       </label>
 
-      <label>WhatsApp Number:
-        <input type="text" id="whatsapp" placeholder="+1234567890" />
-      </label>
-      <label>Gmail:
-        <input type="email" id="gmail" placeholder="you@example.com" />
-      </label>
-      <label>Facebook Profile:
-        <input type="url" id="facebook" placeholder="https://facebook.com/username" />
-      </label>
-      <label>Twitter/X Profile:
-        <input type="url" id="twitter" placeholder="https://twitter.com/username" />
-      </label>
-    </div>
 
-    
-    <div id="producerFields" style="display:none;">
-      <label>Services (comma separated):
-        <input type="text" id="services" placeholder="e.g. Home Cook, Tutor" />
-      </label>
-      <label>GitHub Link:
-        <input type="url" id="github" placeholder="https://github.com/username" />
-      </label>
-      <label>Hourly Rate ($):
-        <input type="number" id="hourlyRate" min="0" step="0.01" placeholder="e.g. 15" />
-      </label>
-      <label>Daily Rate ($):
-        <input type="number" id="dailyRate" min="0" step="0.01" placeholder="e.g. 100" />
-      </label>
-    </div>
+      <div id="commonFields">
+        <label>Profile Image:
+          <input type="file" id="profileImage" accept="image/*" />
+          <img id="imagePreview" src="" alt="Image Preview"
+            style="display:none; width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-top: 10px;" />
+        </label>
 
-    <div class="button-group">
-      <button type="button" id="editProfileBtn"
-        style="display:none; background-color: var(--secondary-color); color: white;">Edit Profile</button>
-      <button type="submit" id="saveProfileBtn">Save Profile</button>
-      <button type="button" id="viewProfileBtn" style="background-color: #6b7280; color: white;">View Public
-        Profile</button>
-    </div>
-  </form>
+        <label>Bio / About Me / Projects:
+          <textarea id="portfolio" rows="4"
+            placeholder="Describe yourself, your projects, or what you are looking for..."></textarea>
+        </label>
 
-  <script src="app.js" type="module"></script>
+        <label>WhatsApp Number:
+          <input type="text" id="whatsapp" placeholder="+1234567890" />
+        </label>
+        <label>Gmail:
+          <input type="email" id="gmail" placeholder="you@example.com" />
+        </label>
+        <label>Facebook Profile:
+          <input type="url" id="facebook" placeholder="https://facebook.com/username" />
+        </label>
+        <label>Twitter/X Profile:
+          <input type="url" id="twitter" placeholder="https://twitter.com/username" />
+        </label>
+        <label>Address:
+          <input type="text" id="address" placeholder="e.g. House 12, Road 5, Dhanmondi, Dhaka" />
+        </label>
+      </div>
+
+
+      <div id="producerFields" style="display:none;">
+        <label>Services (comma separated):
+          <input type="text" id="services" placeholder="e.g. Home Cook, Tutor" />
+        </label>
+        <label>GitHub Link:
+          <input type="url" id="github" placeholder="https://github.com/username" />
+        </label>
+        <label>Hourly Rate (BDT):
+          <input type="number" id="hourlyRate" min="0" step="0.01" placeholder="e.g. 500" />
+        </label>
+        <label>Daily Rate (BDT):
+          <input type="number" id="dailyRate" min="0" step="0.01" placeholder="e.g. 3000" />
+        </label>
+      </div>
+
+      <div class="button-group">
+        <button type="button" id="editProfileBtn"
+          style="display:none; background-color: var(--secondary-color); color: white;">Edit Profile</button>
+        <button type="submit" id="saveProfileBtn">Save Profile</button>
+        <button type="button" id="viewProfileBtn" style="background-color: #6b7280; color: white;">View Public
+          Profile</button>
+      </div>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="sos.js"></script>
+    <script type="module" src="complaint.js"></script>
+    <script src="app.js" type="module"></script>
 </body>
 
 </html>

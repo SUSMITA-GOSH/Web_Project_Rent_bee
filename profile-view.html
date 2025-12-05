@@ -5,67 +5,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Provider Profile - RentBee</title>
-    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="design-system.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 80px;
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-btn-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .social-btn-whatsapp:hover {
+            background: #128C7E;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .social-btn-email {
+            background: #EA4335;
+            color: white;
+        }
+
+        .social-btn-email:hover {
+            background: #C5221F;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .social-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+    </style>
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">RentBee</a></div>
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="profile.html">My Profile</a>
+    <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-primary" href="index.html">🐝RentBee</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="profile.html">My Profile</a></li>
+                </ul>
+            </div>
         </div>
     </nav>
 
-    <div class="profile-view-container"
-        style="max-width: 800px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <div class="profile-header" style="display: flex; gap: 2rem; align-items: start; margin-bottom: 2rem;">
-            <img id="profileImg" src="https://via.placeholder.com/150" alt="Profile"
-                style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
-            <div class="profile-info">
-                <h1 id="profileName" style="margin: 0 0 0.5rem 0;">Loading...</h1>
-                <div class="badges" style="margin-bottom: 1rem;">
-                    <span class="badge verified">Verified</span>
-                    <span class="badge" id="avgRating">New</span>
-                </div>
-                <div class="rates" style="color: #666; font-weight: 500;">
-                    <p>Hourly Rate: $<span id="hourlyRate">0</span>/hr</p>
-                    <p>Daily Rate: $<span id="dailyRate">0</span>/day</p>
-                </div>
-                <div id="socialLinks" style="margin-top: 1rem; display: flex; gap: 10px;">
-                    
+    <div class="container py-4">
+        <div class="job-box">
+            <div class="job-box-header text-center">
+                <img id="profileImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile"
+                    class="rounded-circle mb-3"
+                    style="width: 120px; height: 120px; object-fit: cover; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <h1 id="profileName" class="fw-bold mb-2">Loading...</h1>
+                <div class="badges mb-3">
+                    <span class="badge-custom badge-success me-2">Verified</span>
+                    <span class="badge-custom badge-warning" id="avgRating">⭐ New</span>
                 </div>
             </div>
-        </div>
 
-        <div class="profile-section">
-            <h3>Services</h3>
-            <ul id="serviceList" style="list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px;">
-               
-            </ul>
-        </div>
+            <div class="job-box-body">
+                <!-- Rates Section -->
+                <div class="rates text-center mb-4 p-3 bg-light rounded">
+                    <div class="row">
+                        <div class="col-6">
+                            <h4 class="text-primary mb-0">৳<span id="hourlyRate">0</span></h4>
+                            <small class="text-muted">per hour</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-primary mb-0">৳<span id="dailyRate">0</span></h4>
+                            <small class="text-muted">per day</small>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="profile-section" style="margin-top: 2rem;">
-            <h3>Portfolio / Bio</h3>
-            <p id="portfolioText" style="line-height: 1.6; color: #4b5563; white-space: pre-wrap;"></p>
-        </div>
+                <!-- Contact Section -->
+                <div class="card-custom p-4 mb-4">
+                    <h5 class="fw-bold mb-3 text-center">📞 Contact Provider</h5>
+                    <div id="socialLinks" class="d-flex gap-3 justify-content-center flex-wrap">
+                        <!-- Will be populated dynamically with styled buttons -->
+                    </div>
+                </div>
 
-        <div class="action-buttons" style="margin-top: 2rem; text-align: center;">
-            <button id="bookNowBtn" class="book-btn" style="max-width: 300px; font-size: 1.1rem;">Book This
-                Provider</button>
-            <button id="editPublicProfileBtn" class="book-btn"
-                style="display:none; max-width: 300px; font-size: 1.1rem; background-color: #6b7280;">Edit
-                Profile</button>
-        </div>
+                <!-- Address Section -->
+                <div class="card-custom p-4 mb-4" id="addressSection" style="display:none;">
+                    <h5 class="fw-bold mb-3 text-center">📍 Location</h5>
+                    <p id="addressText" class="text-center text-secondary mb-0"></p>
+                </div>
 
-        <div class="reviews-section" style="margin-top: 3rem; border-top: 1px solid #eee; padding-top: 2rem;">
-            <h3>Reviews</h3>
-            <div id="reviewsList">
-                <p>No reviews yet.</p>
+                <!-- Services Section -->
+                <div class="profile-section mb-4">
+                    <h5 class="fw-bold mb-3">🛠️ Services Offered</h5>
+                    <div id="serviceList" class="d-flex flex-wrap gap-2">
+                        <!-- Services will be added here as badges -->
+                    </div>
+                </div>
+
+                <!-- Portfolio/Bio Section -->
+                <div class="profile-section mb-4">
+                    <h5 class="fw-bold mb-3">📝 About / Portfolio</h5>
+                    <p id="portfolioText" class="text-secondary" style="line-height: 1.8; white-space: pre-wrap;"></p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons text-center mt-4">
+                    <button id="bookNowBtn" class="btn btn-primary-custom btn-lg px-5">
+                        📅 Book This Provider
+                    </button>
+                    <button id="editPublicProfileBtn" class="btn btn-outline-custom btn-lg px-5" style="display:none;">
+                        ✏️ Edit Profile
+                    </button>
+                </div>
+
+                <!-- Reviews Section -->
+                <div class="reviews-section mt-5 pt-4 border-top">
+                    <h5 class="fw-bold mb-3">⭐ Reviews</h5>
+                    <div id="reviewsList">
+                        <p class="text-muted text-center">No reviews yet.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="sos.js"></script>
+    <script type="module" src="complaint.js"></script>
     <script type="module" src="app.js"></script>
 </body>
 

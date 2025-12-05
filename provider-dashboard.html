@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Dashboard - RentBee</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="design-system.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 80px;
+        }
+
+        .nav-pills .nav-link.active {
+            background: var(--gradient-provider);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-warning" href="index.html">🐝RentBee</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="provider-dashboard.html">Dashboard</a></li>
+                    <li class="nav-item dropdown" id="navProfileItem">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                            data-bs-toggle="dropdown">
+                            <img id="navProfileImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                                class="rounded-circle border" width="32" height="32" alt="Profile">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item" href="profile.html">Edit Profile</a></li>
+                            <li><a class="dropdown-item" href="profile-view.html">View Public Profile</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item" id="navLogoutItem">
+                        <button id="navLogoutBtn" class="btn btn-outline-danger rounded-pill ms-2">Logout</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header-custom">
+        <div class="container">
+            <h1 class="display-5 fw-bold mb-2">Welcome, <span id="userName" class="text-primary">Provider</span>! 👋
+            </h1>
+            <p class="lead text-muted">Find jobs, manage your profile, and grow your business.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="d-flex justify-content-center">
+                        <div class="stat-icon icon-hover">💼</div>
+                    </div>
+                    <h3 id="appliedJobs">0</h3>
+                    <p>Jobs Applied</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="d-flex justify-content-center">
+                        <div class="stat-icon icon-hover">✅</div>
+                    </div>
+                    <h3 id="activeApplications">0</h3>
+                    <p>Active Applications</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="d-flex justify-content-center">
+                        <div class="stat-icon icon-hover">👁️</div>
+                    </div>
+                    <h3 id="profileViews">0</h3>
+                    <p>Profile Views</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card text-center">
+                    <div class="d-flex justify-content-center">
+                        <div class="stat-icon icon-hover">⭐</div>
+                    </div>
+                    <h3 id="rating">4.8</h3>
+                    <p>Rating</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-pills mb-4" id="dashboardTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="jobs-tab" data-bs-toggle="pill" data-bs-target="#jobs"
+                    type="button">
+                    🔍 Browse Jobs
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="requests-tab" data-bs-toggle="pill" data-bs-target="#requests"
+                    type="button">
+                    📬 Booking Requests <span id="requestsBadge" class="badge bg-danger ms-1"
+                        style="display:none;">0</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="notifications-tab" data-bs-toggle="pill" data-bs-target="#notifications"
+                    type="button">
+                    🔔 Notifications <span id="notificationsBadge" class="badge bg-danger ms-1"
+                        style="display:none;">0</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="applications-tab" data-bs-toggle="pill" data-bs-target="#applications"
+                    type="button">
+                    📋 My Applications
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button">
+                    👤 My Profile
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="dashboardTabContent">
+            <!-- Browse Jobs Tab -->
+            <div class="tab-pane fade show active" id="jobs" role="tabpanel">
+                <!-- Filters -->
+                <div class="card-custom p-4 mb-4">
+                    <h5 class="mb-3 fw-bold">Filter Jobs</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label small text-muted fw-bold">Category</label>
+                            <select class="form-select form-control-custom" id="filterCategory">
+                                <option value="">All Categories</option>
+                                <option value="Web Developer">Web Developer</option>
+                                <option value="Designer">Designer</option>
+                                <option value="Chef">Chef</option>
+                                <option value="Tutor">Tutor</option>
+                                <option value="Cleaner">Cleaner</option>
+                                <option value="Nanny">Nanny</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold">Min Budget ($)</label>
+                            <input type="number" class="form-control form-control-custom" id="filterMinBudget"
+                                placeholder="0">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted fw-bold">Max Budget ($)</label>
+                            <input type="number" class="form-control form-control-custom" id="filterMaxBudget"
+                                placeholder="1000">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button class="btn btn-primary-custom w-100" id="applyFiltersBtn">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jobs List -->
+                <div id="jobsList">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Requests Tab -->
+            <div class="tab-pane fade" id="requests" role="tabpanel">
+                <div id="bookingRequestsList">
+                    <div class="empty-state-styled">
+                        <div class="empty-state-icon-wrapper">📬</div>
+                        <h4 class="empty-state-title">No Booking Requests</h4>
+                        <p class="empty-state-text">When clients book your services, requests will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div class="tab-pane fade" id="notifications" role="tabpanel">
+                <div id="notificationsList">
+                    <div class="empty-state-styled">
+                        <div class="empty-state-icon-wrapper">🔔</div>
+                        <h4 class="empty-state-title">No Notifications</h4>
+                        <p class="empty-state-text">Updates about your applications and bookings will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Applications Tab -->
+            <div class="tab-pane fade" id="applications" role="tabpanel">
+                <div id="applicationsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h4>No Applications Yet</h4>
+                        <p>Browse jobs and apply to get started</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Profile Tab -->
+            <div class="tab-pane fade" id="profile" role="tabpanel">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4 text-center">
+                                <img id="profileImage" src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                                    class="rounded-circle mb-3" width="120" height="120" style="object-fit: cover;">
+                                <h3 id="profileName">Your Name</h3>
+                                <p class="text-muted mb-3" id="profileServices">Your Services</p>
+                                <div class="mb-4">
+                                    <span class="badge bg-success me-2">Verified</span>
+                                    <span class="badge bg-warning text-dark">⭐ 4.8</span>
+                                </div>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <a href="profile.html" class="btn btn-primary-gradient">Edit Profile</a>
+                                    <a href="profile-view.html" class="btn btn-outline-secondary">View Public
+                                        Profile</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="app.js"></script>
+    <script type="module" src="sos.js"></script>
+    <script type="module" src="complaint.js"></script>
+    <script type="module">
+        import { auth, db } from './firebase.js';
+        import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+        import {
+            collection, addDoc, query, where, getDocs, getDoc, doc, updateDoc, orderBy, arrayUnion, onSnapshot
+        } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+        let currentUser = null;
+        let currentUserData = null;
+
+        // Check authentication and role
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUser = user;
+
+            // Check if user is a provider
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                currentUserData = userDoc.data();
+                const userRole = currentUserData.role || currentUserData.type;
+
+                if (userRole === 'receiver' || userRole === 'consumer') {
+                    // Redirect receivers to their dashboard
+                    window.location.href = 'client-dashboard.html';
+                    return;
+                }
+
+                // Load user data
+                document.getElementById('userName').textContent = currentUserData.name || 'Provider';
+                document.getElementById('profileName').textContent = currentUserData.name || 'Your Name';
+                document.getElementById('profileServices').textContent = currentUserData.services ? currentUserData.services.join(', ') : 'Your Services';
+
+                // Load profile images
+                const navImg = document.getElementById('navProfileImg');
+                const profileImg = document.getElementById('profileImage');
+                if (currentUserData.profileImageURL) {
+                    navImg.src = currentUserData.profileImageURL;
+                    profileImg.src = currentUserData.profileImageURL;
+                }
+            }
+
+            // Load dashboard data
+            loadJobs();
+            loadApplications();
+            loadBookingRequests();
+            loadNotifications();
+            loadStats();
+        });
+
+        // Logout
+        document.getElementById('navLogoutBtn').onclick = () => {
+            signOut(auth).then(() => window.location.href = 'index.html');
+        };
+
+        // Load Jobs
+        async function loadJobs(filters = {}) {
+            const jobsList = document.getElementById('jobsList');
+            jobsList.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                // Removed orderBy to avoid needing a composite index for now
+                let q = query(collection(db, 'jobs'), where('status', '==', 'open'));
+                const querySnapshot = await getDocs(q);
+
+                let jobs = [];
+                querySnapshot.forEach((doc) => {
+                    const job = { id: doc.id, ...doc.data() };
+
+                    // Apply filters
+                    let matches = true;
+                    if (filters.category && job.category !== filters.category) matches = false;
+                    if (filters.minBudget && job.budgetAmount < filters.minBudget) matches = false;
+                    if (filters.maxBudget && job.budgetAmount > filters.maxBudget) matches = false;
+
+                    if (matches) jobs.push(job);
+                });
+
+                // Client-side sort by createdAt descending
+                jobs.sort((a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.seconds : 0;
+                    const dateB = b.createdAt ? b.createdAt.seconds : 0;
+                    return dateB - dateA;
+                });
+
+                if (jobs.length === 0) {
+                    jobsList.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">💼</div>
+              <h4>No Jobs Available</h4>
+              <p>Check back later for new opportunities</p>
+            </div>
+          `;
+                    return;
+                }
+
+                let jobsHtml = '';
+                jobs.forEach((job) => {
+                    const hasApplied = job.applicants && job.applicants.includes(currentUser.uid);
+
+                    jobsHtml += `
+            <div class="card-custom p-4 mb-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h5 class="fw-bold mb-2">${job.title}</h5>
+                  <div class="text-muted small mb-3">
+                    <span class="me-3">📁 ${job.category}</span>
+                    <span class="me-3">💰 $${job.budgetAmount} (${job.budgetType})</span>
+                    <span class="me-3">📍 ${job.location}</span>
+                    <span>⏱️ ${job.duration}</span>
+                  </div>
+                  <p class="mb-3 text-secondary">${job.description.substring(0, 200)}${job.description.length > 200 ? '...' : ''}</p>
+                  ${job.requiredSkills && job.requiredSkills.length > 0 ? `
+                    <div class="mb-3">
+                      ${job.requiredSkills.map(skill => `<span class="badge-custom badge-primary me-1">${skill}</span>`).join('')}
+                    </div>
+                  ` : ''}
+                  <small class="text-muted">Posted by ${job.postedByName} • ${new Date(job.createdAt.seconds * 1000).toLocaleDateString()}</small>
+                </div>
+                <div class="ms-3">
+                  ${hasApplied ?
+                            '<span class="badge-custom badge-success">Applied ✓</span>' :
+                            `<button class="btn btn-primary-custom" onclick="applyToJob('${job.id}')">Apply Now</button>`
+                        }
+                </div>
+              </div>
+            </div>
+          `;
+                });
+
+                jobsList.innerHTML = jobsHtml;
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                jobsList.innerHTML = '<p class="text-danger text-center">Error loading jobs</p>';
+            }
+        }
+
+        // Apply Filters
+        document.getElementById('applyFiltersBtn').addEventListener('click', () => {
+            const filters = {
+                category: document.getElementById('filterCategory').value,
+                minBudget: parseFloat(document.getElementById('filterMinBudget').value) || 0,
+                maxBudget: parseFloat(document.getElementById('filterMaxBudget').value) || Infinity
+            };
+            loadJobs(filters);
+        });
+
+        // Apply to Job
+        window.applyToJob = async (jobId) => {
+            if (!currentUser) return;
+
+            try {
+                // Get job details for notification
+                const jobDoc = await getDoc(doc(db, 'jobs', jobId));
+                if (!jobDoc.exists()) {
+                    alert('Job not found');
+                    return;
+                }
+                const jobData = jobDoc.data();
+
+                const jobRef = doc(db, 'jobs', jobId);
+                await updateDoc(jobRef, {
+                    applicants: arrayUnion(currentUser.uid)
+                });
+
+                // Create application record
+                const appRef = await addDoc(collection(db, 'applications'), {
+                    jobId: jobId,
+                    jobTitle: jobData.title,
+                    jobOwnerId: jobData.postedBy,
+                    providerId: currentUser.uid,
+                    providerName: currentUserData.name || 'Anonymous',
+                    status: 'pending',
+                    createdAt: new Date()
+                });
+
+                // Create notification for job owner (client)
+                await addDoc(collection(db, 'notifications'), {
+                    recipientId: jobData.postedBy,
+                    type: 'application_received',
+                    title: 'New Job Application! 📋',
+                    message: `${currentUserData.name || 'A provider'} has applied to your job "${jobData.title}".`,
+                    relatedId: appRef.id,
+                    relatedType: 'application',
+                    jobId: jobId,
+                    senderId: currentUser.uid,
+                    senderName: currentUserData.name || 'Provider',
+                    read: false,
+                    createdAt: new Date()
+                });
+
+                alert('Application submitted successfully! The client will be notified.');
+                loadJobs();
+                loadApplications();
+                loadStats();
+            } catch (error) {
+                console.error('Error applying to job:', error);
+                alert('Failed to apply: ' + error.message);
+            }
+        };
+
+        // Load Applications
+        async function loadApplications() {
+            if (!currentUser) return;
+
+            const applicationsList = document.getElementById('applicationsList');
+            applicationsList.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                // Removed orderBy to avoid composite index requirement
+                const q = query(collection(db, 'applications'), where('providerId', '==', currentUser.uid));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    applicationsList.innerHTML = `
+            <div class="empty-state-styled">
+              <div class="empty-state-icon-wrapper">📋</div>
+              <h4 class="empty-state-title">No Applications Yet</h4>
+              <p class="empty-state-text">Browse jobs and apply to get started</p>
+            </div>
+          `;
+                    return;
+                }
+
+                // Collect applications with their data
+                let applications = [];
+                for (const appDoc of querySnapshot.docs) {
+                    const app = { id: appDoc.id, ...appDoc.data() };
+
+                    // Fetch job details
+                    const jobDoc = await getDoc(doc(db, 'jobs', app.jobId));
+                    if (jobDoc.exists()) {
+                        app.job = jobDoc.data();
+                        applications.push(app);
+                    }
+                }
+
+                // Client-side sort by createdAt descending
+                applications.sort((a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.seconds : 0;
+                    const dateB = b.createdAt ? b.createdAt.seconds : 0;
+                    return dateB - dateA;
+                });
+
+                let applicationsHtml = '';
+                applications.forEach((app) => {
+                    const job = app.job;
+                    const statusColor = app.status === 'pending' ? 'warning' : app.status === 'accepted' ? 'success' : 'danger';
+
+                    applicationsHtml += `
+            <div class="card-custom p-4 mb-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h5 class="fw-bold mb-2">${job.title}</h5>
+                  <div class="text-muted small mb-3">
+                    <span class="me-3">📁 ${job.category}</span>
+                    <span class="me-3">💰 $${job.budgetAmount} (${job.budgetType})</span>
+                  </div>
+                  <p class="mb-3 text-secondary">${job.description.substring(0, 150)}${job.description.length > 150 ? '...' : ''}</p>
+                  <small class="text-muted">Applied ${new Date(app.createdAt.seconds * 1000).toLocaleDateString()}</small>
+                </div>
+                <div class="ms-3">
+                  <span class="badge-custom badge-${statusColor}">${app.status.toUpperCase()}</span>
+                </div>
+              </div>
+            </div>
+          `;
+                });
+
+                applicationsList.innerHTML = applicationsHtml;
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                applicationsList.innerHTML = '<p class="text-danger text-center">Error loading applications</p>';
+            }
+        }
+
+        // Load Stats
+        async function loadStats() {
+            if (!currentUser) return;
+
+            try {
+                const q = query(collection(db, 'applications'), where('providerId', '==', currentUser.uid));
+                const querySnapshot = await getDocs(q);
+
+                let appliedJobs = 0;
+                let activeApplications = 0;
+
+                querySnapshot.forEach((doc) => {
+                    const app = doc.data();
+                    appliedJobs++;
+                    if (app.status === 'pending') activeApplications++;
+                });
+
+                document.getElementById('appliedJobs').textContent = appliedJobs;
+                document.getElementById('activeApplications').textContent = activeApplications;
+
+                // Profile views would come from analytics (placeholder)
+                document.getElementById('profileViews').textContent = Math.floor(Math.random() * 100);
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load Booking Requests
+        function loadBookingRequests() {
+            if (!currentUser) return;
+
+            const requestsList = document.getElementById('bookingRequestsList');
+            // Initial spinner only if empty
+            if (!requestsList.innerHTML.trim()) {
+                requestsList.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+            }
+
+            const q = query(collection(db, 'bookings'), where('providerId', '==', currentUser.uid));
+
+            // Real-time listener
+            onSnapshot(q, (querySnapshot) => {
+                if (querySnapshot.empty) {
+                    requestsList.innerHTML = `
+                        <div class="empty-state-styled">
+                            <div class="empty-state-icon-wrapper">📬</div>
+                            <h4 class="empty-state-title">No Booking Requests</h4>
+                            <p class="empty-state-text">When clients book your services, requests will appear here</p>
+                        </div>
+                    `;
+                    document.getElementById('requestsBadge').style.display = 'none';
+                    return;
+                }
+
+                // Collect and sort bookings
+                let bookings = [];
+                querySnapshot.forEach((doc) => {
+                    bookings.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sort by createdAt descending
+                bookings.sort((a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.seconds : 0;
+                    const dateB = b.createdAt ? b.createdAt.seconds : 0;
+                    return dateB - dateA;
+                });
+
+                // Count pending requests for badge
+                const pendingCount = bookings.filter(b => b.status === 'pending').length;
+                const badge = document.getElementById('requestsBadge');
+                if (pendingCount > 0) {
+                    badge.textContent = pendingCount;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                let requestsHtml = '';
+                bookings.forEach((booking) => {
+                    const statusColor = booking.status === 'pending' ? 'warning' : booking.status === 'accepted' ? 'success' : 'danger';
+                    const statusText = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
+                    const createdDate = booking.createdAt ? new Date(booking.createdAt.seconds * 1000).toLocaleDateString() : 'Unknown';
+
+                    requestsHtml += `
+                        <div class="card-custom p-4 mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h5 class="fw-bold mb-2">📅 ${booking.service}</h5>
+                                    <div class="text-muted small mb-2">
+                                        <span class="me-3">👤 From: <strong>${booking.clientName || 'Client'}</strong></span>
+                                    </div>
+                                    <div class="text-muted small mb-3">
+                                        <span class="me-3">📆 Date: ${booking.date}</span>
+                                        <span class="me-3">⏰ Time: ${booking.time}</span>
+                                        <span>⏱️ Duration: ${booking.duration}</span>
+                                    </div>
+                                    <p class="mb-2"><strong>Location:</strong> ${booking.location}</p>
+                                    ${booking.notes ? `<p class="mb-2 text-secondary"><strong>Notes:</strong> ${booking.notes}</p>` : ''}
+                                    <small class="text-muted">Requested on ${createdDate}</small>
+                                </div>
+                                <div class="ms-3 text-end">
+                                    <span class="badge-custom badge-${statusColor} mb-3 d-inline-block">${statusText}</span>
+                                    ${booking.status === 'pending' ? `
+                                        <div class="d-flex flex-column gap-2 mt-2">
+                                            <button class="btn btn-success btn-sm rounded-pill" onclick="handleBookingResponse('${booking.id}', 'accepted', '${booking.clientId}', '${booking.service}')">
+                                                ✓ Accept
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="handleBookingResponse('${booking.id}', 'declined', '${booking.clientId}', '${booking.service}')">
+                                                ✗ Decline
+                                            </button>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                requestsList.innerHTML = requestsHtml;
+            }, (error) => {
+                console.error('Error loading booking requests:', error);
+                requestsList.innerHTML = '<p class="text-danger text-center">Error loading booking requests</p>';
+            });
+        }
+
+        // Handle Booking Response (Accept/Decline)
+        window.handleBookingResponse = async (bookingId, status, clientId, service) => {
+            if (!currentUser) return;
+
+            const confirmMsg = status === 'accepted'
+                ? 'Are you sure you want to accept this booking?'
+                : 'Are you sure you want to decline this booking?';
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                // Update booking status
+                await updateDoc(doc(db, 'bookings', bookingId), {
+                    status: status,
+                    respondedAt: new Date()
+                });
+
+                // Create notification for client
+                const notificationType = status === 'accepted' ? 'booking_accepted' : 'booking_declined';
+                const notificationTitle = status === 'accepted' ? 'Congratulations! Booking Accepted 🎉' : 'Booking Update';
+                const notificationMessage = status === 'accepted'
+                    ? `Congratulations! ${currentUserData.name || 'The provider'} has accepted your ${service} booking. You can now connect and work together.`
+                    : `We're sorry, but ${currentUserData.name || 'the provider'} is unable to accept your ${service} booking request at this time. Please try booking another provider.`;
+
+                await addDoc(collection(db, 'notifications'), {
+                    recipientId: clientId,
+                    type: notificationType,
+                    title: notificationTitle,
+                    message: notificationMessage,
+                    relatedId: bookingId,
+                    relatedType: 'booking',
+                    senderId: currentUser.uid,
+                    senderName: currentUserData.name || 'Provider',
+                    read: false,
+                    createdAt: new Date()
+                });
+
+                alert(status === 'accepted' ? 'Booking accepted! The client will be notified.' : 'Booking declined. The client will be notified.');
+                loadBookingRequests();
+            } catch (error) {
+                console.error('Error responding to booking:', error);
+                alert('Failed to respond: ' + error.message);
+            }
+        };
+
+        // Load Notifications
+        function loadNotifications() {
+            if (!currentUser) return;
+
+            const notificationsList = document.getElementById('notificationsList');
+            // Initial spinner only if empty
+            if (!notificationsList.innerHTML.trim()) {
+                notificationsList.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+            }
+
+            const q = query(collection(db, 'notifications'), where('recipientId', '==', currentUser.uid));
+
+            // Real-time listener
+            onSnapshot(q, (querySnapshot) => {
+                if (querySnapshot.empty) {
+                    notificationsList.innerHTML = `
+                        <div class="empty-state-styled">
+                            <div class="empty-state-icon-wrapper">🔔</div>
+                            <h4 class="empty-state-title">No Notifications</h4>
+                            <p class="empty-state-text">Updates about your applications and bookings will appear here</p>
+                        </div>
+                    `;
+                    document.getElementById('notificationsBadge').style.display = 'none';
+                    return;
+                }
+
+                // Collect and sort notifications
+                let notifications = [];
+                querySnapshot.forEach((doc) => {
+                    notifications.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Sort by createdAt descending
+                notifications.sort((a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.seconds : 0;
+                    const dateB = b.createdAt ? b.createdAt.seconds : 0;
+                    return dateB - dateA;
+                });
+
+                // Count unread notifications
+                const unreadCount = notifications.filter(n => !n.read).length;
+                const badge = document.getElementById('notificationsBadge');
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                let notificationsHtml = '';
+                notifications.forEach((notif) => {
+                    const isAccepted = notif.type.includes('accepted');
+                    const isDeclined = notif.type.includes('declined');
+                    const iconColor = isAccepted ? 'text-success' : isDeclined ? 'text-danger' : 'text-primary';
+                    const icon = isAccepted ? '✅' : isDeclined ? '❌' : '📬';
+                    const bgClass = notif.read ? '' : 'bg-light';
+                    const createdDate = notif.createdAt ? new Date(notif.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
+
+                    notificationsHtml += `
+                        <div class="card-custom p-4 mb-3 ${bgClass}">
+                            <div class="d-flex align-items-start">
+                                <span class="fs-3 me-3 ${iconColor}">${icon}</span>
+                                <div class="flex-grow-1">
+                                    <h5 class="fw-bold mb-1">${notif.title || 'Notification'}</h5>
+                                    <p class="mb-2">${notif.message}</p>
+                                    <small class="text-muted">${createdDate}</small>
+                                </div>
+                                ${!notif.read ? `
+                                    <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="markAsRead('${notif.id}')">
+                                        Mark as read
+                                    </button>
+                                ` : '<span class="badge-custom badge-success">Read</span>'}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                notificationsList.innerHTML = notificationsHtml;
+            }, (error) => {
+                console.error('Error loading notifications:', error);
+                notificationsList.innerHTML = '<p class="text-danger text-center">Error loading notifications</p>';
+            });
+        }
+
+        // Mark notification as read
+        window.markAsRead = async (notificationId) => {
+            try {
+                await updateDoc(doc(db, 'notifications', notificationId), { read: true });
+                loadNotifications();
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        };
+    </script>
+</body>
+
+</html>
