@@ -33,14 +33,28 @@ onAuthStateChanged(auth, async (user) => {
     if (navProfileItem) {
       navProfileItem.style.display = 'list-item';
 
-      // Load Profile Image for Navbar
+      // Load Profile Image for Navbar and Set Dashboard Link
       const navImg = document.getElementById('navProfileImg');
-      if (navImg) {
+      const navDashboardLink = document.getElementById('navDashboardLink');
+      if (navImg || navDashboardLink) {
         const docSnap = await getDoc(doc(db, 'users', user.uid));
         if (docSnap.exists()) {
           const data = docSnap.data();
-          if (data.profileImageURL) {
+          if (data.profileImageURL && navImg) {
             navImg.src = data.profileImageURL;
+          }
+          
+          // Set dashboard link based on user role
+          if (navDashboardLink) {
+            const userRole = data.role || data.type;
+            if (userRole === 'receiver' || userRole === 'consumer') {
+              navDashboardLink.href = 'client-dashboard.html';
+            } else if (userRole === 'provider' || userRole === 'producer') {
+              navDashboardLink.href = 'provider-dashboard.html';
+            } else {
+              // Default to client dashboard if role is unclear
+              navDashboardLink.href = 'client-dashboard.html';
+            }
           }
         }
       }
