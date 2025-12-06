@@ -28,7 +28,7 @@ RentBee solves this by connecting these two individuals with a single tap. We ar
 
 The platform operates in three simple steps:
 
-    Request: Users search for a skill (e.g., "Home Cook," "Math Tutor," "Nanny").
+Request: Users search for a skill (e.g., "Home Cook," "Math Tutor," "Nanny").
 
 Match: The system displays verified, background-checked providers with ratings and profiles.
 
@@ -37,7 +37,7 @@ Book & Pay: The user books a time and pays securely via the platform.
 **🚀 Core Features**
 For Customers (The "Requesters")
 
-    Intuitive Skill Search: Find providers based on skill, location, and rating.
+Intuitive Skill Search: Find providers based on skill, location, and rating.
 
 Verified Profiles: View photos, intro videos, bios, skills, and "RentBee Badges".
 
@@ -47,7 +47,7 @@ In-App Chat: Communicate securely without sharing personal phone numbers.
 
 For Providers (The "Professionals")
 
-    Flexible Schedule: Set your own hours and availability.
+Flexible Schedule: Set your own hours and availability.
 
 Public Profile: Showcase skills and build a reputation to earn badges.
 
@@ -59,7 +59,7 @@ Safety Tools: Access to an SOS button and 24/7 support.
 
 Trust is our foundation. We utilize a 360-degree safety protocol:
 
-    Verification: Mandatory National ID (NID) or passport submission for all providers.
+Verification: Mandatory National ID (NID) or passport submission for all providers.
 
 RentBee Badges: Visual indicators for "Safety-Verified," "Reliability Rockstar," and "Community Favorite".
 
@@ -71,7 +71,7 @@ Dispute Resolution: Robust in-app reporting and blocking features.
 
 **💻 Tech Stack**
 
-    Frontend: React.js / Next.js, TailwindCSS.
+Frontend: React.js / Next.js, TailwindCSS.
 
 Backend: Node.js (Express) or Django.
 
@@ -85,7 +85,7 @@ Deployment: Vercel / AWS.
 
 **💰 Business Model**
 
-    Service Commission: A transparent 10-15% fee on completed transactions.
+Service Commission: A transparent 10-15% fee on completed transactions.
 
 Provider Verification Fee: A small one-time fee for premium background checks.
 
@@ -93,6 +93,6 @@ Promoted Listings: Options for providers to pay for top search placement.
 
 **👥 Team**
 
-    Sumaiya Mamun - 2021331103@sust.edu.bd 
+Sumaiya Mamun - 2021331103@sust.edu.bd 
 
 Susmita Rani Gosh - 2021331029@sust.edu.bd
