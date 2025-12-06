@@ -71,17 +71,17 @@ Dispute Resolution: Robust in-app reporting and blocking features.
 
 **💻 Tech Stack**
 
-Frontend: React.js / Next.js, TailwindCSS.
+Frontend: Html,css
 
-Backend: Node.js (Express) or Django.
+Backend: Node.js .
 
-Database: MongoDB / PostgreSQL.
+Database: Firestore database
 
 Authentication: Firebase Auth / JWT.
 
-Payment Gateway: Bkash & Nagad API Integration.
 
-Deployment: Vercel / AWS.
+
+
 
 **💰 Business Model**
 
