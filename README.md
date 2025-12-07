@@ -41,10 +41,6 @@ Intuitive Skill Search: Find providers based on skill, location, and rating.
 
 Verified Profiles: View photos, intro videos, bios, skills, and "RentBee Badges".
 
-Secure In-App Payments: Integrated with Bkash and Nagad. Payments are held in escrow until the job is complete.
-
-In-App Chat: Communicate securely without sharing personal phone numbers.
-
 For Providers (The "Professionals")
 
 Flexible Schedule: Set your own hours and availability.
@@ -53,31 +49,26 @@ Public Profile: Showcase skills and build a reputation to earn badges.
 
 Guaranteed Payments: Secure, on-time payments managed by the platform.
 
-Safety Tools: Access to an SOS button and 24/7 support.
+Safety Tools: Access to an SOS button, complain button and 24/7 support.
 
 **🛡️ Trust & Safety Protocol**
 
 Trust is our foundation. We utilize a 360-degree safety protocol:
 
-Verification: Mandatory National ID (NID) or passport submission for all providers.
-
-RentBee Badges: Visual indicators for "Safety-Verified," "Reliability Rockstar," and "Community Favorite".
 
 SOS Button: A panic button available during service that alerts our support team.
 
-Escrow System: Payments are held securely until the user confirms service completion.
-
-Dispute Resolution: Robust in-app reporting and blocking features.
+Complain button: To complain about provider and reciever
 
 **💻 Tech Stack**
 
 Frontend: Html,css
 
-Backend: Node.js .
+Backend: js 
 
 Database: Firestore database
 
-Authentication: Firebase Auth / JWT.
+Authentication: Firebase Auth.
 
 
 
