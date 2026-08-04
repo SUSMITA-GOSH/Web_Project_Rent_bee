@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RentBee — Interactive Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#24211D;
+    --ink-soft:#5B5750;
+    --paper:#F7F5F1;
+    --card:#FFFFFF;
+    --honey:#C77D02;
+    --honey-dark:#8F5A02;
+    --honey-tint:#FBEBD1;
+    --line:#E7E2D8;
+    --good:#3D7A4C;
+    --sos:#B8402E;
+    --shadow: 0 20px 45px -20px rgba(36,33,29,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:48px 20px;
+  }
+  .stage{
+    width:100%;
+    max-width:1180px;
+    display:grid;
+    grid-template-columns: 380px 1fr;
+    gap:56px;
+    align-items:start;
+  }
+  @media (max-width: 880px){
+    .stage{grid-template-columns:1fr; justify-items:center;}
+  }
+
+  /* ---------- Phone ---------- */
+  .phone-wrap{
+    position:relative;
+    animation: rise 0.7s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes rise{
+    from{opacity:0; transform:translateY(18px) scale(.98);}
+    to{opacity:1; transform:translateY(0) scale(1);}
+  }
+  .phone{
+    width:340px;
+    height:700px;
+    background:var(--card);
+    border-radius:42px;
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  .notch{
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:120px; height:22px; background:var(--ink); border-radius:0 0 14px 14px; z-index:5;
+  }
+  .statusbar{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 26px 4px; font-size:12px; font-weight:600; color:var(--ink-soft);
+  }
+  .screen{
+    position:absolute; inset:0;
+    padding-top:38px;
+    display:flex; flex-direction:column;
+    opacity:0; pointer-events:none;
+    transform: translateX(16px);
+    transition: opacity .32s ease, transform .38s cubic-bezier(.2,.8,.2,1);
+  }
+  .screen.active{
+    opacity:1; pointer-events:auto; transform:translateX(0);
+    position:relative;
+  }
+  .screen-body{ flex:1; overflow-y:auto; padding:0 20px 90px; }
+  .screen-body::-webkit-scrollbar{display:none;}
+
+  .app-header{
+    padding:6px 20px 14px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .app-header h1{
+    font-family:'Fraunces',serif; font-size:21px; font-weight:600; margin:0;
+    display:flex; align-items:center; gap:6px;
+  }
+  .back-btn{
+    width:34px; height:34px; border-radius:10px; border:1px solid var(--line);
+    background:var(--card); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:16px; color:var(--ink);
+  }
+  .back-btn:hover{ background:var(--paper); }
+
+  /* Bottom Nav */
+  .bottom-nav{
+    position:absolute; bottom:0; left:0; right:0;
+    background:var(--card); border-top:1px solid var(--line);
+    display:flex; padding:10px 10px 16px;
+    z-index:4;
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+    cursor:pointer; color:var(--ink-soft); font-size:10.5px; font-weight:600;
+    background:none; border:none; font-family:inherit;
+  }
+  .nav-item .hex{ width:20px; height:20px; opacity:.55; }
+  .nav-item.active{ color:var(--honey-dark); }
+  .nav-item.active .hex{ opacity:1; }
+
+  /* Hexagon */
+  .hex-icon{
+    clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%);
+    display:flex; align-items:center; justify-content:center;
+    background:var(--honey-tint); color:var(--honey-dark);
+    font-size:18px;
+  }
+
+  /* Search */
+  .search-box{
+    display:flex; align-items:center; gap:8px;
+    background:var(--paper); border:1px solid var(--line); border-radius:12px;
+    padding:11px 14px; margin-bottom:16px; color:var(--ink-soft); font-size:13px;
+  }
+  .cat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+  .cat-card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:14px; display:flex; flex-direction:column; gap:8px; cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .cat-card:hover{ transform:translateY(-2px); box-shadow:0 10px 20px -12px rgba(36,33,29,.25); }
+  .cat-card .hex-icon{ width:38px; height:38px; font-size:18px; }
+  .cat-card span{ font-size:12.5px; font-weight:600; }
+
+  .section-label{
+    font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--ink-soft); margin:4px 0 10px;
+  }
+
+  .mini-provider{
+    display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--line);
+  }
+  .mini-provider:first-child{ border-top:none; }
+  .avatar{
+    width:38px; height:38px; border-radius:50%; background:var(--honey-tint);
+    display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;
+  }
+  .mini-provider .name{ font-size:13px; font-weight:600; }
+  .mini-provider .sub{ font-size:11px; color:var(--ink-soft); }
+
+  .sos-fab{
+    position:absolute; right:18px; bottom:100px; width:46px; height:46px; border-radius:50%;
+    background:var(--sos); color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:700; box-shadow:0 8px 18px -6px rgba(184,64,46,.6); cursor:pointer;
+    border:none;
+  }
+
+  /* Provider card list */
+  .provider-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px;
+    margin-bottom:12px;
+  }
+  .provider-top{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .provider-top .avatar{ width:44px; height:44px; font-size:18px; }
+  .badge{
+    display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:700;
+    background:#EAF3EB; color:var(--good); border-radius:6px; padding:2px 7px; margin-top:2px;
+  }
+  .stars{ color:var(--honey); font-size:12px; letter-spacing:1px; }
+  .price-row{ display:flex; justify-content:space-between; align-items:center; margin:8px 0; font-size:13px; color:var(--ink-soft); }
+  .btn{
+    width:100%; border:none; border-radius:12px; padding:12px; font-weight:700; font-size:13.5px;
+    cursor:pointer; font-family:inherit; transition: transform .12s ease, filter .15s ease;
+  }
+  .btn:active{ transform:scale(.98); }
+  .btn-primary{ background:var(--ink); color:#fff; }
+  .btn-primary:hover{ filter:brightness(1.15); }
+  .btn-outline{ background:var(--card); color:var(--ink); border:1.5px solid var(--ink); }
+
+  /* Profile screen */
+  .profile-hero{ text-align:center; padding:14px 0 6px; }
+  .profile-hero .avatar{ width:72px; height:72px; font-size:30px; margin:0 auto 10px; }
+  .profile-hero h2{ font-family:'Fraunces',serif; font-size:18px; margin:0 0 4px; }
+  .about-box{
+    background:var(--paper); border-radius:12px; padding:12px; font-size:12.5px; color:var(--ink-soft);
+    line-height:1.5; margin:14px 0;
+  }
+  .field{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px;
+    margin-bottom:14px; font-size:13px;
+  }
+
+  /* Confirm & pay */
+  .summary-card{
+    background:var(--paper); border-radius:14px; padding:14px; margin-bottom:16px;
+  }
+  .summary-row{ display:flex; justify-content:space-between; font-size:13px; padding:4px 0; color:var(--ink-soft); }
+  .summary-row.total{ font-weight:700; color:var(--ink); border-top:1px solid var(--line); margin-top:8px; padding-top:10px; font-size:14px; }
+  .pay-methods{ display:flex; gap:8px; margin-bottom:18px; }
+  .pay-method{
+    flex:1; border:1.5px solid var(--line); border-radius:10px; padding:10px 4px; text-align:center;
+    font-size:12px; font-weight:600; cursor:pointer; background:var(--card);
+  }
+  .pay-method.selected{ border-color:var(--honey); background:var(--honey-tint); color:var(--honey-dark); }
+  .escrow-note{ text-align:center; font-size:10.5px; color:var(--ink-soft); margin-top:10px; }
+
+  /* Active booking / SOS screen */
+  .map-box{
+    height:150px; background:var(--paper); border:1px solid var(--line); border-radius:14px;
+    display:flex; align-items:center; justify-content:center; color:var(--ink-soft); font-size:11.5px;
+    margin:12px 0 16px;
+  }
+  .sos-center{ display:flex; flex-direction:column; align-items:center; margin-top:22px; }
+  .sos-big{
+    width:96px; height:96px; border-radius:50%; background:var(--sos); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:17px;
+    cursor:pointer; border:none; box-shadow:0 12px 26px -8px rgba(184,64,46,.55);
+  }
+  .sos-big:active{ transform:scale(.96); }
+  .sos-caption{ font-size:11px; color:var(--ink-soft); text-align:center; margin-top:12px; max-width:220px; }
+
+  .toast{
+    position:absolute; left:20px; right:20px; bottom:96px;
+    background:var(--ink); color:#fff; border-radius:12px; padding:12px 14px;
+    font-size:12.5px; text-align:center; box-shadow:0 14px 30px -12px rgba(0,0,0,.4);
+    opacity:0; transform:translateY(8px); transition:opacity .25s ease, transform .25s ease;
+    pointer-events:none; z-index:10;
+  }
+  .toast.show{ opacity:1; transform:translateY(0); }
+
+  .bookings-empty{ text-align:center; padding:40px 20px; color:var(--ink-soft); font-size:13px; }
+
+  /* ---------- Panel (right side) ---------- */
+  .panel{ padding-top:8px; animation: rise 0.8s cubic-bezier(.2,.8,.2,1) .1s both; }
+  .eyebrow{
+    font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--honey-dark);
+    margin-bottom:10px;
+  }
+  .panel h2{ font-family:'Fraunces',serif; font-size:32px; margin:0 0 12px; line-height:1.15; }
+  .panel p{ color:var(--ink-soft); font-size:15px; line-height:1.6; max-width:520px; }
+  .flow-list{ margin-top:26px; display:flex; flex-direction:column; gap:2px; }
+  .flow-step{
+    display:flex; align-items:center; gap:14px; padding:13px 4px; border-top:1px solid var(--line);
+    cursor:pointer;
+  }
+  .flow-step:first-child{ border-top:none; }
+  .flow-step .num{
+    width:26px; height:26px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    background:var(--paper); color:var(--ink-soft); border:1px solid var(--line);
+  }
+  .flow-step.current .num{ background:var(--honey); color:#fff; border-color:var(--honey); }
+  .flow-step .label{ font-size:13.5px; font-weight:600; }
+  .flow-step.current .label{ color:var(--honey-dark); }
+  .flow-step .desc{ font-size:11.5px; color:var(--ink-soft); margin-top:1px; }
+
+  .note-box{
+    margin-top:28px; padding:16px 18px; background:var(--honey-tint); border-radius:14px;
+    font-size:12.5px; color:var(--honey-dark); line-height:1.55;
+  }
+
+  /* ---------- Provider Mode ---------- */
+  .btn-small{ width:auto; padding:7px 12px; font-size:10.5px; border-radius:10px; }
+
+  .welcome-hero{ padding:8px 0 4px; }
+  .welcome-hero h2{ font-family:'Fraunces',serif; font-size:18px; margin:0 0 4px; }
+  .welcome-hero p{ font-size:12px; color:var(--ink-soft); margin:0 0 8px; }
+
+  .provider-stats{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+  .stat-card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:12px 14px; text-align:center;
+  }
+  .stat-card .stat-value{ font-family:'Fraunces',serif; font-size:20px; font-weight:700; color:var(--honey-dark); }
+  .stat-card .stat-label{ font-size:10.5px; color:var(--ink-soft); margin-top:2px; }
+
+  .quick-actions{ display:flex; flex-direction:column; gap:10px; margin-bottom:18px; }
+  .quick-action{
+    display:flex; align-items:center; gap:12px;
+    background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px;
+    cursor:pointer; transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .quick-action:hover{ transform:translateY(-2px); box-shadow:0 10px 20px -12px rgba(36,33,29,.25); }
+  .quick-action .hex-icon{ width:36px; height:36px; font-size:16px; flex-shrink:0; }
+  .quick-action .qa-label{ font-size:12.5px; font-weight:600; }
+  .quick-action .qa-arrow{ margin-left:auto; color:var(--ink-soft); }
+
+  .job-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; margin-bottom:12px; }
+  .job-card .job-top{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .job-card h3{ font-family:'Fraunces',serif; font-size:14px; margin:0; }
+  .job-card .job-meta{ font-size:11px; color:var(--ink-soft); margin:2px 0; }
+  .job-card .job-budget{ font-weight:700; color:var(--honey-dark); font-size:13px; }
+
+  .application-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px;
+    margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:10px;
+  }
+  .status-chip{ font-size:10px; font-weight:700; border-radius:6px; padding:3px 9px; white-space:nowrap; }
+  .status-chip.accepted{ background:#EAF3EB; color:var(--good); }
+  .status-chip.pending{ background:var(--honey-tint); color:var(--honey-dark); }
+  .status-chip.rejected{ background:#F7E3DF; color:var(--sos); }
+
+  .notification-card{ display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-top:1px solid var(--line); }
+  .notification-card:first-child{ border-top:none; }
+  .notification-card .notif-icon{
+    width:34px; height:34px; border-radius:50%; background:var(--honey-tint);
+    display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0;
+  }
+  .notification-card .notif-title{ font-size:12.5px; font-weight:600; }
+  .notification-card .notif-time{ font-size:10.5px; color:var(--ink-soft); margin-top:2px; }
+
+  .earning-card{
+    background:linear-gradient(135deg, var(--honey-tint), var(--card));
+    border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px;
+  }
+  .earning-row{ display:flex; justify-content:space-between; align-items:center; padding:5px 0; }
+  .earning-row .earning-label{ font-size:11.5px; color:var(--ink-soft); }
+  .earning-row .earning-value{ font-family:'Fraunces',serif; font-weight:700; font-size:17px; color:var(--honey-dark); }
+
+  .field.profile-item{ cursor:pointer; }
+
+  .toggle{
+    position:relative; width:44px; height:25px; background:var(--line); border-radius:20px;
+    cursor:pointer; transition:background .25s ease; flex-shrink:0;
+  }
+  .toggle::after{
+    content:''; position:absolute; top:3px; left:3px; width:19px; height:19px; border-radius:50%;
+    background:#fff; transition:transform .25s cubic-bezier(.2,.8,.2,1); box-shadow:0 2px 4px rgba(0,0,0,.2);
+  }
+  .toggle.on{ background:var(--good); }
+  .toggle.on::after{ transform:translateX(19px); }
+
+  .availability-row{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:12px 14px; margin-bottom:14px;
+  }
+  .skill-tags{ display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 16px; }
+  .skill-tag{
+    font-size:11px; font-weight:600; background:var(--honey-tint); color:var(--honey-dark);
+    border-radius:8px; padding:5px 10px;
+  }
+
+  .success-center{ display:flex; flex-direction:column; align-items:center; margin-top:56px; text-align:center; }
+  .success-check{
+    width:80px; height:80px; border-radius:50%; background:#EAF3EB; color:var(--good);
+    display:flex; align-items:center; justify-content:center; font-size:38px; margin-bottom:16px;
+    animation: rise .5s cubic-bezier(.2,.8,.2,1) both;
+  }
+  .success-center h2{ font-family:'Fraunces',serif; font-size:16px; margin:0 0 22px; max-width:220px; }
+
+  .search-row{ display:flex; gap:8px; align-items:stretch; margin-bottom:16px; }
+  .search-row .search-box{ flex:1 1 70%; margin-bottom:0; }
+  .post-job-btn{
+    flex:0 0 28%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:2px; background:var(--honey-tint); color:var(--honey-dark); border:1px solid var(--line);
+    border-radius:12px; font-size:10.5px; font-weight:700; cursor:pointer; font-family:inherit;
+    transition: transform .12s ease, filter .15s ease;
+  }
+  .post-job-btn:active{ transform:scale(.97); }
+  .post-job-btn:hover{ filter:brightness(1.05); }
+  .post-job-btn .pj-icon{ font-size:15px; }
+
+  .input-field{
+    width:100%; background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:11px 14px; font-size:13px; font-family:inherit; color:var(--ink); margin-bottom:12px;
+  }
+  .input-field::placeholder{ color:var(--ink-soft); }
+  textarea.input-field{ resize:none; height:70px; line-height:1.4; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="phone-wrap">
+    <div class="phone" id="phone">
+      <div class="notch"></div>
+
+      <!-- HOME -->
+      <div class="screen active" data-screen="home">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <h1>🐝 RentBee</h1>
+          <button class="btn btn-outline btn-small" onclick="goTo('provider-dashboard')">Become a Provider</button>
+        </div>
+        <div class="screen-body">
+          <div class="search-row">
+            <div class="search-box">🔍&nbsp; What do you need help with?</div>
+            <button class="post-job-btn" onclick="goTo('post-job')"><span class="pj-icon">➕</span>Post Job</button>
+          </div>
+          <div class="section-label">Categories</div>
+          <div class="cat-grid">
+            <div class="cat-card" onclick="selectCategory('Home Cooks')">
+              <div class="hex-icon">🍲</div><span>Cooking</span>
+            </div>
+            <div class="cat-card" onclick="selectCategory('Tutors')">
+              <div class="hex-icon">📘</div><span>Tutoring</span>
+            </div>
+            <div class="cat-card" onclick="selectCategory('Caregivers')">
+              <div class="hex-icon">🧸</div><span>Childcare</span>
+            </div>
+            <div class="cat-card" onclick="selectCategory('Repair Techs')">
+              <div class="hex-icon">🔧</div><span>Repairs</span>
+            </div>
+          </div>
+          <div class="section-label">Nearby &amp; Recently Viewed</div>
+          <div class="mini-provider">
+            <div class="avatar">👩🏽‍🍳</div>
+            <div><div class="name">Runa's Kitchen</div><div class="sub">★★★★☆ · Cooking · ৳500/session</div></div>
+          </div>
+          <div class="mini-provider">
+            <div class="avatar">👨🏽‍🏫</div>
+            <div><div class="name">Tanvir Rahman</div><div class="sub">★★★★★ · Math Tutor · ৳600/session</div></div>
+          </div>
+        </div>
+        <button class="sos-fab" onclick="goTo('sos')">SOS</button>
+        <div class="bottom-nav">
+          <button class="nav-item active" onclick="goTo('home')"><div class="hex-icon hex">🏠</div>Home</button>
+          <button class="nav-item" onclick="goTo('bookings')"><div class="hex-icon hex">📋</div>Bookings</button>
+          <button class="nav-item" onclick="goTo('profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- COMPARE PROVIDERS -->
+      <div class="screen" data-screen="compare">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('home')">←</button>
+          <h1 id="compare-title" style="font-size:17px;">Home Cooks Near You</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body" id="compare-list"></div>
+        <div class="bottom-nav">
+          <button class="nav-item active" onclick="goTo('home')"><div class="hex-icon hex">🏠</div>Home</button>
+          <button class="nav-item" onclick="goTo('bookings')"><div class="hex-icon hex">📋</div>Bookings</button>
+          <button class="nav-item" onclick="goTo('profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- PROVIDER PROFILE -->
+      <div class="screen" data-screen="profile-detail">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('compare')">←</button>
+          <h1 style="font-size:17px;">Provider Profile</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body">
+          <div class="profile-hero">
+            <div class="avatar" id="pd-avatar" style="margin:0 auto 10px; width:72px; height:72px; font-size:30px;">👩🏽‍🍳</div>
+            <h2 id="pd-name">Runa's Kitchen</h2>
+            <div class="stars">★★★★☆</div>
+            <div class="badge">✓ ID Verified</div>
+          </div>
+          <div class="about-box" id="pd-about">
+            Home-style Bengali &amp; Chinese cooking for events, up to 40 guests. 4 years on RentBee, 120+ completed bookings.
+          </div>
+          <div class="section-label">Select date &amp; time</div>
+          <div class="field"><span>Tomorrow, 5:00 PM</span><span>▾</span></div>
+          <button class="btn btn-primary" id="pd-book-btn" onclick="goTo('confirm')">Book Now — ৳500</button>
+        </div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('home')"><div class="hex-icon hex">🏠</div>Home</button>
+          <button class="nav-item active" onclick="goTo('bookings')"><div class="hex-icon hex">📋</div>Bookings</button>
+          <button class="nav-item" onclick="goTo('profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- CONFIRM & PAY -->
+      <div class="screen" data-screen="confirm">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('profile-detail')">←</button>
+          <h1 style="font-size:17px;">Confirm Booking</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body">
+          <div class="summary-card">
+            <div class="summary-row"><span id="cf-name">Runa's Kitchen</span><span>Tomorrow, 5PM</span></div>
+            <div class="summary-row"><span>Session</span><span id="cf-service">Home Cooking</span></div>
+            <div class="summary-row total"><span>Total</span><span id="cf-price">৳500</span></div>
+          </div>
+          <div class="section-label">Payment Method</div>
+          <div class="pay-methods">
+            <div class="pay-method selected" onclick="selectPay(this)">bKash</div>
+            <div class="pay-method" onclick="selectPay(this)">Nagad</div>
+            <div class="pay-method" onclick="selectPay(this)">Card</div>
+          </div>
+          <button class="btn btn-primary" onclick="goTo('active')">Confirm &amp; Pay</button>
+          <div class="escrow-note">Escrow-protected — released to the provider only after your service is completed.</div>
+        </div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('home')"><div class="hex-icon hex">🏠</div>Home</button>
+          <button class="nav-item active" onclick="goTo('bookings')"><div class="hex-icon hex">📋</div>Bookings</button>
+          <button class="nav-item" onclick="goTo('profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- ACTIVE BOOKING / SOS -->
+      <div class="screen" data-screen="active">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('home')">←</button>
+          <h1 style="font-size:17px;">Active Booking</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body">
+          <p style="font-size:13px; font-weight:600; margin:4px 0 0;">✅ Booking confirmed — provider is on the way</p>
+          <div class="map-box">[ live map placeholder ]</div>
+          <div class="field"><span>Share live location with contact</span><span style="color:var(--good); font-weight:700;">ON</span></div>
+          <div class="sos-center">
+            <button class="sos-big" onclick="triggerSOS()">SOS</button>
+            <div class="sos-caption">Tap to instantly alert RentBee support and your emergency contact with your live location.</div>
+          </div>
+        </div>
+        <div class="toast" id="sos-toast">🚨 Support &amp; emergency contact notified with your live location.</div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('home')"><div class="hex-icon hex">🏠</div>Home</button>
+          <button class="nav-item active" onclick="goTo('bookings')"><div class="hex-icon hex">📋</div>Bookings</button>
+          <button class="nav-item" onclick="goTo('profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- DEDICATED SOS ENTRY (from FAB) -->
+      <div class="screen" data-screen="sos">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('home')">←</button>
+          <h1 style="font-size:17px;">Safety</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body">
+          <p style="font-size:12.5px; color:var(--ink-soft); margin-top:4px;">If you feel unsafe during any RentBee service, use the button below any time.</p>
+          <div class="sos-center">
+            <button class="sos-big" onclick="triggerSOS()">SOS</button>
+            <div class="sos-caption">Instantly alerts RentBee support and your saved emergency contact with your live location.</div>
+          </div>
+        </div>
+        <div class="toast" id="sos-toast-2">🚨 Support &amp; emergency contact notified with your live location.</div>
+        <div class="bottom-nav">
+          <button class="nav-item active"><div class="hex-icon hex">🏠</div>Home</button>
+          <button class="nav-item" onclick="goTo('bookings')"><div class="hex-icon hex">📋</div>Bookings</button>
+          <button class="nav-item" onclick="goTo('profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- BOOKINGS -->
+      <div class="screen" data-screen="bookings">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header"><h1 style="font-size:19px;">Your Bookings</h1></div>
+        <div class="screen-body" id="bookings-body">
+          <div class="bookings-empty">No bookings yet.<br>Book a service from Home to see it here.</div>
+        </div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('home')"><div class="hex-icon hex">🏠</div>Home</button>
+          <button class="nav-item active"><div class="hex-icon hex">📋</div>Bookings</button>
+          <button class="nav-item" onclick="goTo('profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="screen" data-screen="profile">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header"><h1 style="font-size:19px;">Profile</h1></div>
+        <div class="screen-body">
+          <div class="profile-hero">
+            <div class="avatar" style="margin:0 auto 10px; width:72px; height:72px; font-size:28px;">🙂</div>
+            <h2>Susmita R.</h2>
+            <div class="badge">✓ Verified Requester</div>
+          </div>
+          <div class="field"><span>Saved payment methods</span><span>›</span></div>
+          <div class="field"><span>Emergency contact</span><span>›</span></div>
+          <div class="field"><span>Notification settings</span><span>›</span></div>
+          <div class="field"><span>Help &amp; support</span><span>›</span></div>
+        </div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('home')"><div class="hex-icon hex">🏠</div>Home</button>
+          <button class="nav-item" onclick="goTo('bookings')"><div class="hex-icon hex">📋</div>Bookings</button>
+          <button class="nav-item active"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- POST A JOB -->
+      <div class="screen" data-screen="post-job">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('home')">←</button>
+          <h1 style="font-size:17px;">Post a Job</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body">
+          <input class="input-field" id="pj-title" type="text" placeholder="What do you need help with?">
+          <input class="input-field" id="pj-budget" type="text" placeholder="Budget (e.g. ৳700/session)">
+          <input class="input-field" id="pj-location" type="text" placeholder="Location (e.g. Sylhet)">
+          <input class="input-field" id="pj-schedule" type="text" placeholder="Schedule (e.g. Tomorrow, 5:00 PM)">
+          <textarea class="input-field" id="pj-description" placeholder="Describe what you need done..."></textarea>
+          <button class="btn btn-primary" onclick="postJob()">Post Job</button>
+        </div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('home')"><div class="hex-icon hex">🏠</div>Home</button>
+          <button class="nav-item" onclick="goTo('bookings')"><div class="hex-icon hex">📋</div>Bookings</button>
+          <button class="nav-item" onclick="goTo('profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- JOB POSTED SUCCESS -->
+      <div class="screen" data-screen="job-posted">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header"><h1 style="font-size:19px;">Post a Job</h1></div>
+        <div class="screen-body">
+          <div class="success-center">
+            <div class="success-check">✓</div>
+            <h2>Your job is now live and visible to nearby providers</h2>
+            <button class="btn btn-primary" onclick="goTo('home')">Back to Home</button>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <button class="nav-item active"><div class="hex-icon hex">🏠</div>Home</button>
+          <button class="nav-item" onclick="goTo('bookings')"><div class="hex-icon hex">📋</div>Bookings</button>
+          <button class="nav-item" onclick="goTo('profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- ============ PROVIDER MODE ============ -->
+
+      <!-- PROVIDER DASHBOARD -->
+      <div class="screen" data-screen="provider-dashboard">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <h1 style="font-size:19px;">🐝 RentBee</h1>
+          <button class="btn btn-outline btn-small" onclick="goTo('home')">Switch to Customer</button>
+        </div>
+        <div class="screen-body">
+          <div class="welcome-hero">
+            <h2>Welcome, Susmita 👋</h2>
+            <p>Grow your business with RentBee</p>
+            <div class="badge">✓ Verified Provider</div>
+          </div>
+          <div class="provider-stats">
+            <div class="stat-card"><div class="stat-value" id="stat-jobs-applied">12</div><div class="stat-label">Jobs Applied</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-active-jobs">3</div><div class="stat-label">Active Jobs</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-profile-views">145</div><div class="stat-label">Profile Views</div></div>
+            <div class="stat-card"><div class="stat-value" id="stat-rating">⭐4.8</div><div class="stat-label">Rating</div></div>
+          </div>
+          <div class="section-label">Quick Actions</div>
+          <div class="quick-actions">
+            <div class="quick-action" onclick="goTo('browse-jobs')"><div class="hex-icon">💼</div><span class="qa-label">Browse Jobs</span><span class="qa-arrow">›</span></div>
+            <div class="quick-action" onclick="goTo('my-applications')"><div class="hex-icon">📄</div><span class="qa-label">My Applications</span><span class="qa-arrow">›</span></div>
+            <div class="quick-action" onclick="goTo('booking-requests')"><div class="hex-icon">📥</div><span class="qa-label">Booking Requests</span><span class="qa-arrow">›</span></div>
+            <div class="quick-action" onclick="goTo('notifications')"><div class="hex-icon">🔔</div><span class="qa-label">Notifications</span><span class="qa-arrow">›</span></div>
+            <div class="quick-action" onclick="goTo('provider-profile')"><div class="hex-icon">👤</div><span class="qa-label">My Profile</span><span class="qa-arrow">›</span></div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <button class="nav-item active" onclick="goTo('provider-dashboard')"><div class="hex-icon hex">📊</div>Dashboard</button>
+          <button class="nav-item" onclick="goTo('browse-jobs')"><div class="hex-icon hex">💼</div>Jobs</button>
+          <button class="nav-item" onclick="goTo('notifications')"><div class="hex-icon hex">🔔</div>Alerts</button>
+          <button class="nav-item" onclick="goTo('provider-profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- BROWSE JOBS -->
+      <div class="screen" data-screen="browse-jobs">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('provider-dashboard')">←</button>
+          <h1 style="font-size:17px;">Browse Jobs</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body" id="jobs-list"></div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('provider-dashboard')"><div class="hex-icon hex">📊</div>Dashboard</button>
+          <button class="nav-item active"><div class="hex-icon hex">💼</div>Jobs</button>
+          <button class="nav-item" onclick="goTo('notifications')"><div class="hex-icon hex">🔔</div>Alerts</button>
+          <button class="nav-item" onclick="goTo('provider-profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- JOB DETAILS -->
+      <div class="screen" data-screen="job-detail">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('browse-jobs')">←</button>
+          <h1 style="font-size:17px;">Job Details</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body">
+          <div class="profile-hero">
+            <div class="avatar" id="jd-icon" style="margin:0 auto 10px; width:64px; height:64px; font-size:26px;">📘</div>
+            <h2 id="jd-title">Home Tutor Needed</h2>
+          </div>
+          <div class="field"><span>Client</span><span id="jd-client">Sarah Ahmed</span></div>
+          <div class="field"><span>Budget</span><span id="jd-budget">৳700/session</span></div>
+          <div class="field"><span>Location</span><span id="jd-location">Sylhet</span></div>
+          <div class="field"><span>Schedule</span><span id="jd-schedule">Tomorrow</span></div>
+          <div class="section-label">Description</div>
+          <div class="about-box" id="jd-description">Looking for a patient math tutor.</div>
+          <button class="btn btn-primary" onclick="submitApplication()">Apply</button>
+        </div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('provider-dashboard')"><div class="hex-icon hex">📊</div>Dashboard</button>
+          <button class="nav-item active"><div class="hex-icon hex">💼</div>Jobs</button>
+          <button class="nav-item" onclick="goTo('notifications')"><div class="hex-icon hex">🔔</div>Alerts</button>
+          <button class="nav-item" onclick="goTo('provider-profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- APPLICATION SUBMITTED -->
+      <div class="screen" data-screen="application-submitted">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header"><h1 style="font-size:19px;">Application</h1></div>
+        <div class="screen-body">
+          <div class="success-center">
+            <div class="success-check">✓</div>
+            <h2>Application Submitted Successfully</h2>
+            <button class="btn btn-primary" onclick="goTo('browse-jobs')">Browse More Jobs</button>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('provider-dashboard')"><div class="hex-icon hex">📊</div>Dashboard</button>
+          <button class="nav-item active"><div class="hex-icon hex">💼</div>Jobs</button>
+          <button class="nav-item" onclick="goTo('notifications')"><div class="hex-icon hex">🔔</div>Alerts</button>
+          <button class="nav-item" onclick="goTo('provider-profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- BOOKING REQUESTS -->
+      <div class="screen" data-screen="booking-requests">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('provider-dashboard')">←</button>
+          <h1 style="font-size:17px;">Booking Requests</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body" id="booking-requests-list"></div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('provider-dashboard')"><div class="hex-icon hex">📊</div>Dashboard</button>
+          <button class="nav-item active"><div class="hex-icon hex">💼</div>Jobs</button>
+          <button class="nav-item" onclick="goTo('notifications')"><div class="hex-icon hex">🔔</div>Alerts</button>
+          <button class="nav-item" onclick="goTo('provider-profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- ACTIVE JOB -->
+      <div class="screen" data-screen="active-job">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('provider-dashboard')">←</button>
+          <h1 style="font-size:17px;">Active Job</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body">
+          <div class="field"><span>Job</span><span id="aj-service">Math Tutor</span></div>
+          <div class="field"><span>Client</span><span id="aj-client">Sarah Ahmed</span></div>
+          <div class="field"><span>Location</span><span id="aj-location">Sylhet</span></div>
+          <div class="field"><span>Time</span><span id="aj-time">Tomorrow, 5:00 PM</span></div>
+          <div class="field"><span>Status</span><span class="badge" id="aj-status">● ACTIVE</span></div>
+          <div class="map-box">[ live map placeholder ]</div>
+          <button class="btn btn-primary" onclick="completeJob()">Complete Job</button>
+        </div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('provider-dashboard')"><div class="hex-icon hex">📊</div>Dashboard</button>
+          <button class="nav-item active"><div class="hex-icon hex">💼</div>Jobs</button>
+          <button class="nav-item" onclick="goTo('notifications')"><div class="hex-icon hex">🔔</div>Alerts</button>
+          <button class="nav-item" onclick="goTo('provider-profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="screen" data-screen="notifications">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('provider-dashboard')">←</button>
+          <h1 style="font-size:17px;">Notifications</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body" id="notifications-list"></div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('provider-dashboard')"><div class="hex-icon hex">📊</div>Dashboard</button>
+          <button class="nav-item" onclick="goTo('browse-jobs')"><div class="hex-icon hex">💼</div>Jobs</button>
+          <button class="nav-item active"><div class="hex-icon hex">🔔</div>Alerts</button>
+          <button class="nav-item" onclick="goTo('provider-profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- MY APPLICATIONS -->
+      <div class="screen" data-screen="my-applications">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('provider-dashboard')">←</button>
+          <h1 style="font-size:17px;">My Applications</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body" id="applications-list"></div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('provider-dashboard')"><div class="hex-icon hex">📊</div>Dashboard</button>
+          <button class="nav-item active"><div class="hex-icon hex">💼</div>Jobs</button>
+          <button class="nav-item" onclick="goTo('notifications')"><div class="hex-icon hex">🔔</div>Alerts</button>
+          <button class="nav-item" onclick="goTo('provider-profile')"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+      <!-- PROVIDER PROFILE -->
+      <div class="screen" data-screen="provider-profile">
+        <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+        <div class="app-header">
+          <button class="back-btn" onclick="goTo('provider-dashboard')">←</button>
+          <h1 style="font-size:17px;">My Profile</h1>
+          <div style="width:34px;"></div>
+        </div>
+        <div class="screen-body" style="padding-bottom:120px;">
+          <div class="profile-hero">
+            <div class="avatar" style="margin:0 auto 10px; width:72px; height:72px; font-size:28px;">🙋🏽‍♀️</div>
+            <h2>Susmita R.</h2>
+            <div class="badge">✓ Verified Provider</div>
+          </div>
+          <div class="earning-card">
+            <div class="earning-row"><span class="earning-label">Today's Earnings</span><span class="earning-value" id="earn-today">৳2,850</span></div>
+            <div class="earning-row"><span class="earning-label">Monthly Earnings</span><span class="earning-value" id="earn-month">৳28,500</span></div>
+          </div>
+          <div class="section-label">Skills</div>
+          <div class="skill-tags">
+            <div class="skill-tag">Math Tutoring</div>
+            <div class="skill-tag">Home Cooking</div>
+            <div class="skill-tag">Electrical Repair</div>
+          </div>
+          <div class="section-label">Certificates</div>
+          <div class="field profile-item"><span>SUST Verified ID</span><span>›</span></div>
+          <div class="field profile-item"><span>First Aid Training</span><span>›</span></div>
+          <div class="availability-row">
+            <span style="font-size:13px; font-weight:600;" id="availability-label">Available</span>
+            <div class="toggle on" id="availability-toggle" onclick="toggleAvailability()"></div>
+          </div>
+          <div class="field profile-item" onclick="goTo('my-applications')"><span>My Applications</span><span>›</span></div>
+          <button class="btn btn-outline" onclick="goTo('home')" style="margin-bottom:8px;">Switch to Customer</button>
+        </div>
+        <div class="bottom-nav">
+          <button class="nav-item" onclick="goTo('provider-dashboard')"><div class="hex-icon hex">📊</div>Dashboard</button>
+          <button class="nav-item" onclick="goTo('browse-jobs')"><div class="hex-icon hex">💼</div>Jobs</button>
+          <button class="nav-item" onclick="goTo('notifications')"><div class="hex-icon hex">🔔</div>Alerts</button>
+          <button class="nav-item active"><div class="hex-icon hex">👤</div>Profile</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="eyebrow">RentBee · High-Fidelity Prototype</div>
+    <h2>Your emergency, Someone's opportunity — One tap away!</h2>
+    <p>This is a fully clickable prototype — tap through the phone on the left just like a real user would. Every screen responds: pick a category, compare providers, book, pay, and try the in-service SOS button.</p>
+
+    <div class="eyebrow" style="margin-top:6px;">Customer Flow</div>
+    <div class="flow-list" id="flow-list">
+      <div class="flow-step" data-step="home"><div class="num">1</div><div><div class="label">Home / Search</div><div class="desc">Browse categories or recent providers</div></div></div>
+      <div class="flow-step" data-step="compare"><div class="num">2</div><div><div class="label">Compare Providers</div><div class="desc">Verified badges, ratings, price per session</div></div></div>
+      <div class="flow-step" data-step="profile-detail"><div class="num">3</div><div><div class="label">Provider Profile &amp; Booking</div><div class="desc">Full profile, pick a time slot</div></div></div>
+      <div class="flow-step" data-step="confirm"><div class="num">4</div><div><div class="label">Confirm &amp; Pay</div><div class="desc">bKash / Nagad / Card, escrow-protected</div></div></div>
+      <div class="flow-step" data-step="active"><div class="num">5</div><div><div class="label">Active Booking &amp; SOS</div><div class="desc">Live status + one-tap safety alert</div></div></div>
+    </div>
+
+    <div class="eyebrow" style="margin-top:26px;">Provider Flow</div>
+    <div class="flow-list" id="provider-flow-list">
+      <div class="flow-step" data-step="provider-dashboard"><div class="num">1</div><div><div class="label">Become a Provider</div><div class="desc">Dashboard with stats and quick actions</div></div></div>
+      <div class="flow-step" data-step="browse-jobs"><div class="num">2</div><div><div class="label">Browse Jobs</div><div class="desc">Open jobs near Sylhet &amp; Dhaka</div></div></div>
+      <div class="flow-step" data-step="job-detail"><div class="num">3</div><div><div class="label">Apply for a Job</div><div class="desc">Full job details, one-tap apply</div></div></div>
+      <div class="flow-step" data-step="booking-requests"><div class="num">4</div><div><div class="label">Accept Booking Request</div><div class="desc">Confirm a client's request</div></div></div>
+      <div class="flow-step" data-step="active-job"><div class="num">5</div><div><div class="label">Complete Active Job</div><div class="desc">Mark job done, earnings update</div></div></div>
+    </div>
+
+    <div class="note-box">
+      Built from Solution Interview feedback: the verification badge, escrow note, and always-visible SOS button were added directly in response to trust concerns raised during our validation interviews. Provider Mode was added so the same trust signals — verification, ratings, escrow — work for both sides of the marketplace.
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const providersByCategory = {
+    'Home Cooks': [
+      {name:"Runa's Kitchen", emoji:'👩🏽‍🍳', rating:'★★★★☆', price:'৳500/session', service:'Home Cooking', about:"Home-style Bengali & Chinese cooking for events, up to 40 guests. 4 years on RentBee, 120+ completed bookings."},
+      {name:'Kamal Catering', emoji:'👨🏽‍🍳', rating:'★★★★★', price:'৳650/session', service:'Home Cooking', about:'Specializes in biryani and party trays. Same-day booking available.'},
+      {name:'Fahmida Begum', emoji:'👩🏻‍🍳', rating:'★★★★☆', price:'৳450/session', service:'Home Cooking', about:'Everyday home-cooked meals, weekly meal-prep packages available.'},
+    ],
+    'Tutors': [
+      {name:'Tanvir Rahman', emoji:'👨🏽‍🏫', rating:'★★★★★', price:'৳600/session', service:'Math Tutoring', about:'BUET graduate, 6 years tutoring O/A Level and admission-test math.'},
+      {name:'Nusrat Jahan', emoji:'👩🏽‍🏫', rating:'★★★★☆', price:'৳500/session', service:'English Tutoring', about:'IELTS and spoken English coach, evening slots available.'},
+      {name:'Rakib Hasan', emoji:'👨🏻‍🏫', rating:'★★★★☆', price:'৳550/session', service:'Physics Tutoring', about:'SUST student, specializes in HSC physics and chemistry.'},
+    ],
+    'Caregivers': [
+      {name:'Shirin Akter', emoji:'👩🏽', rating:'★★★★★', price:'৳400/session', service:'Childcare', about:'12 years experience, trained in basic first aid.'},
+      {name:'Momtaz Bibi', emoji:'👵🏽', rating:'★★★★☆', price:'৳350/session', service:'Childcare', about:'Warm, patient caregiver, great with toddlers.'},
+      {name:'Ayesha Khan', emoji:'👩🏻', rating:'★★★★★', price:'৳450/session', service:'Childcare', about:'Available evenings and weekends, references available.'},
+    ],
+    'Repair Techs': [
+      {name:'Jamal Electric', emoji:'🧑🏽‍🔧', rating:'★★★★☆', price:'৳700/visit', service:'Electrical Repair', about:'Licensed electrician, fan/AC/wiring specialist.'},
+      {name:'Rafiq Plumbing', emoji:'👨🏽‍🔧', rating:'★★★★★', price:'৳600/visit', service:'Plumbing Repair', about:'24hr emergency plumbing, own tools and parts.'},
+      {name:'Sabbir Tech', emoji:'🧑🏻‍🔧', rating:'★★★★☆', price:'৳500/visit', service:'Appliance Repair', about:'Fridge, washing machine, and microwave repair.'},
+    ],
+  };
+
+  let currentProvider = null;
+
+  function goTo(screenName){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelector(`.screen[data-screen="${screenName}"]`).classList.add('active');
+    document.querySelectorAll('.flow-step').forEach(f => f.classList.remove('current'));
+    const step = document.querySelector(`.flow-step[data-step="${screenName}"]`);
+    if(step) step.classList.add('current');
+  }
+
+  function selectCategory(cat){
+    document.getElementById('compare-title').textContent = cat + ' Near You';
+    const list = providersByCategory[cat];
+    const container = document.getElementById('compare-list');
+    container.innerHTML = list.map(p => `
+      <div class="provider-card">
+        <div class="provider-top">
+          <div class="avatar">${p.emoji}</div>
+          <div>
+            <div style="font-weight:700; font-size:13.5px;">${p.name}</div>
+            <div class="stars">${p.rating}</div>
+            <div class="badge">✓ Verified</div>
+          </div>
+        </div>
+        <div class="price-row"><span>${p.service}</span><span>${p.price}</span></div>
+        <button class="btn btn-outline" onclick='openProvider(${JSON.stringify(p).replace(/'/g, "&apos;")})'>View &amp; Book</button>
+      </div>
+    `).join('');
+    goTo('compare');
+  }
+
+  function openProvider(p){
+    currentProvider = p;
+    document.getElementById('pd-avatar').textContent = p.emoji;
+    document.getElementById('pd-name').textContent = p.name;
+    document.getElementById('pd-about').textContent = p.about;
+    document.getElementById('pd-book-btn').textContent = `Book Now — ${p.price.split('/')[0]}`;
+    goTo('profile-detail');
+  }
+
+  function selectPay(el){
+    document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  /* ---------- Provider Mode data & logic ---------- */
+  const jobsList = [
+    {id:'j1', title:'Home Tutor Needed', client:'Sarah Ahmed', budget:'৳700/session', location:'Sylhet', schedule:'Tomorrow, 5:00 PM', icon:'📘', verified:true, description:"Looking for a patient math tutor for a 9th grade student, twice a week. Verified client with 4 prior bookings on RentBee."},
+    {id:'j2', title:'Electrician Needed', client:'Imran Hossain', budget:'৳1200', location:'Dhaka', schedule:'Today, 3:00 PM', icon:'🔧', verified:true, description:"Fan and wiring issue in two rooms, need a same-day fix. Own tools preferred."},
+    {id:'j3', title:'Home Cook Needed', client:'Farzana Chowdhury', budget:'৳900', location:'Sylhet', schedule:'Tomorrow, 12:00 PM', icon:'🍲', verified:false, description:"Need home-cooked lunch for a family gathering of 10 guests. Bengali cuisine preferred."},
+  ];
+
+  const bookingRequests = [
+    {name:'Sarah Ahmed', service:'Math Tutor', schedule:'Tomorrow, 5:00 PM', price:'৳700', location:'Sylhet'},
+  ];
+
+  const applications = [
+    {job:'Plumbing Repair', client:'Rafiq Uddin', status:'accepted'},
+    {job:'English Tutoring', client:'Nadia Islam', status:'pending'},
+    {job:'AC Servicing', client:'Kabir Hossain', status:'rejected'},
+  ];
+
+  const notifications = [
+    {icon:'✅', title:'Application Accepted', time:'10 minutes ago'},
+    {icon:'⭐', title:'You received a new review', time:'1 hour ago'},
+    {icon:'💼', title:'New tutoring job nearby', time:'3 hours ago'},
+    {icon:'⏰', title:'Booking starts in one hour', time:'Yesterday'},
+  ];
+
+  const providerStats = { jobsApplied:12, activeJobs:3, profileViews:145, rating:4.8 };
+  let currentJob = null;
+  let isAvailable = true;
+
+  function postJob(){
+    const title = document.getElementById('pj-title').value.trim() || 'New Job Request';
+    const budget = document.getElementById('pj-budget').value.trim() || 'Negotiable';
+    const location = document.getElementById('pj-location').value.trim() || 'Sylhet';
+    const schedule = document.getElementById('pj-schedule').value.trim() || 'Flexible';
+    const description = document.getElementById('pj-description').value.trim() || 'No additional details provided.';
+    jobsList.unshift({
+      id: 'j' + (jobsList.length + 1),
+      title, client:'Susmita R.', budget, location, schedule,
+      icon:'🧰', verified:true, description
+    });
+    ['pj-title','pj-budget','pj-location','pj-schedule','pj-description'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    loadJobs();
+    goTo('job-posted');
+  }
+
+  function loadJobs(){
+    const container = document.getElementById('jobs-list');
+    container.innerHTML = jobsList.map(j => `
+      <div class="job-card">
+        <div class="job-top">
+          <div class="avatar">${j.icon}</div>
+          <div>
+            <h3>${j.title}</h3>
+            ${j.verified ? '<div class="badge">✓ Verified Client</div>' : ''}
+          </div>
+        </div>
+        <div class="job-meta">Client: ${j.client}</div>
+        <div class="job-meta">📍 ${j.location} · ${j.schedule}</div>
+        <div class="price-row"><span class="job-budget">${j.budget}</span>
+          <button class="btn btn-outline" style="width:auto; padding:8px 18px;" onclick="openJob('${j.id}')">View</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openJob(id){
+    const j = jobsList.find(x => x.id === id);
+    if(!j) return;
+    currentJob = j;
+    document.getElementById('jd-icon').textContent = j.icon;
+    document.getElementById('jd-title').textContent = j.title;
+    document.getElementById('jd-client').textContent = j.client;
+    document.getElementById('jd-budget').textContent = j.budget;
+    document.getElementById('jd-location').textContent = j.location;
+    document.getElementById('jd-schedule').textContent = j.schedule;
+    document.getElementById('jd-description').textContent = j.description;
+    goTo('job-detail');
+  }
+
+  function submitApplication(){
+    if(currentJob){
+      applications.unshift({job:currentJob.title, client:currentJob.client, status:'pending'});
+      providerStats.jobsApplied += 1;
+    }
+    goTo('application-submitted');
+  }
+
+  function renderApplications(){
+    const container = document.getElementById('applications-list');
+    container.innerHTML = applications.map(a => `
+      <div class="application-card">
+        <div>
+          <div style="font-weight:700; font-size:13px;">${a.job}</div>
+          <div style="font-size:11px; color:var(--ink-soft);">${a.client}</div>
+        </div>
+        <div class="status-chip ${a.status}">${a.status.charAt(0).toUpperCase() + a.status.slice(1)}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderBookingRequests(){
+    const container = document.getElementById('booking-requests-list');
+    if(bookingRequests.length === 0){
+      container.innerHTML = '<div class="bookings-empty">No pending booking requests.</div>';
+      return;
+    }
+    container.innerHTML = bookingRequests.map((b, i) => `
+      <div class="job-card">
+        <div class="job-top">
+          <div class="avatar">🙋</div>
+          <div><h3>${b.name}</h3><div class="job-meta">${b.service}</div></div>
+        </div>
+        <div class="job-meta">📍 ${b.location} · ${b.schedule}</div>
+        <div class="price-row"><span class="job-budget">${b.price}</span></div>
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <button class="btn btn-outline" style="padding:10px;" onclick="declineRequest(${i})">Decline</button>
+          <button class="btn btn-primary" style="padding:10px;" onclick="acceptRequest(${i})">Accept</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function declineRequest(i){
+    bookingRequests.splice(i, 1);
+    renderBookingRequests();
+  }
+
+  function acceptRequest(i){
+    const b = bookingRequests[i];
+    if(!b) return;
+    bookingRequests.splice(i, 1);
+    providerStats.activeJobs += 1;
+    document.getElementById('aj-service').textContent = b.service;
+    document.getElementById('aj-client').textContent = b.name;
+    document.getElementById('aj-location').textContent = b.location;
+    document.getElementById('aj-time').textContent = b.schedule;
+    renderBookingRequests();
+    updateDashboardStats();
+    goTo('active-job');
+  }
+
+  function completeJob(){
+    providerStats.activeJobs = Math.max(0, providerStats.activeJobs - 1);
+    const earnToday = document.getElementById('earn-today');
+    const earnMonth = document.getElementById('earn-month');
+    const addAmount = 700;
+    earnToday.textContent = '৳' + (2850 + addAmount).toLocaleString();
+    earnMonth.textContent = '৳' + (28500 + addAmount).toLocaleString();
+    document.getElementById('aj-status').textContent = '✓ Completed';
+    notifications.unshift({icon:'🎉', title:'Job marked complete — payment released', time:'Just now'});
+    updateDashboardStats();
+    renderNotifications();
+    goTo('notifications');
+  }
+
+  function renderNotifications(){
+    const container = document.getElementById('notifications-list');
+    container.innerHTML = notifications.map(n => `
+      <div class="notification-card">
+        <div class="notif-icon">${n.icon}</div>
+        <div><div class="notif-title">${n.title}</div><div class="notif-time">${n.time}</div></div>
+      </div>
+    `).join('');
+  }
+
+  function toggleAvailability(){
+    isAvailable = !isAvailable;
+    const toggle = document.getElementById('availability-toggle');
+    const label = document.getElementById('availability-label');
+    toggle.classList.toggle('on', isAvailable);
+    label.textContent = isAvailable ? 'Available' : 'Unavailable';
+  }
+
+  function updateDashboardStats(){
+    document.getElementById('stat-jobs-applied').textContent = providerStats.jobsApplied;
+    document.getElementById('stat-active-jobs').textContent = providerStats.activeJobs;
+    document.getElementById('stat-profile-views').textContent = providerStats.profileViews;
+    document.getElementById('stat-rating').textContent = '⭐' + providerStats.rating;
+  }
+
+  loadJobs();
+  renderApplications();
+  renderBookingRequests();
+  renderNotifications();
+
+  document.querySelectorAll('.flow-step').forEach(step => {
+    step.addEventListener('click', () => {
+      const target = step.getAttribute('data-step');
+      if(target === 'compare' && !document.getElementById('compare-list').innerHTML){
+        selectCategory('Home Cooks');
+      } else if(target === 'profile-detail' && !currentProvider){
+        openProvider(providersByCategory['Home Cooks'][0]);
+      } else if(target === 'job-detail' && !currentJob){
+        openJob(jobsList[0].id);
+      } else {
+        goTo(target);
+      }
+    });
+  });
+
+  // wire confirm screen to reflect chosen provider
+  const origGoTo = goTo;
+  goTo = function(screenName){
+    origGoTo(screenName);
+    if(screenName === 'confirm' && currentProvider){
+      document.getElementById('cf-name').textContent = currentProvider.name;
+      document.getElementById('cf-service').textContent = currentProvider.service;
+      document.getElementById('cf-price').textContent = currentProvider.price.split('/')[0];
+    }
+    if(screenName === 'active' && currentProvider){
+      const bookingsBody = document.getElementById('bookings-body');
+      bookingsBody.innerHTML = `
+        <div class="provider-card">
+          <div class="provider-top">
+            <div class="avatar">${currentProvider.emoji}</div>
+            <div>
+              <div style="font-weight:700; font-size:13.5px;">${currentProvider.name}</div>
+              <div style="font-size:11.5px; color:var(--ink-soft);">${currentProvider.service} · Tomorrow, 5:00 PM</div>
+            </div>
+          </div>
+          <div class="badge">● In progress</div>
+        </div>`;
+    }
+    if(screenName === 'provider-dashboard'){ updateDashboardStats(); }
+    if(screenName === 'my-applications'){ renderApplications(); }
+    if(screenName === 'booking-requests'){ renderBookingRequests(); }
+    if(screenName === 'notifications'){ renderNotifications(); }
+  };
+
+  function triggerSOS(){
+    const toast = document.querySelector('.screen.active #sos-toast, .screen.active #sos-toast-2') ||
+                  document.getElementById('sos-toast') || document.getElementById('sos-toast-2');
+    const activeToast = document.querySelector('.screen.active .toast');
+    if(activeToast){
+      activeToast.classList.add('show');
+      setTimeout(() => activeToast.classList.remove('show'), 2600);
+    }
+  }
+</script>
+</body>
+</html>
